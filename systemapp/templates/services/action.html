@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block page_title %}Take Action{% endblock %}
+{% block page_subtitle %}Capture a formal action on the notesheet and optionally route it to another officer.{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-xl-7">
+        <div class="surface-card page-card-body">
+            <div class="badge-soft mb-3"><i class="fa-solid fa-gavel"></i> Formal action</div>
+            <h3 class="fw-bold mb-1">{{ note.notesheet_no }} - {{ note.title }}</h3>
+            <p class="text-secondary mb-4">Use this screen for explicit office actions like approve, reject, revert, or forward.</p>
+
+            <form method="POST" class="row g-3">
+                {% csrf_token %}
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Action</label>
+                    <select name="action" class="form-select" required>
+                        <option value="">Select action</option>
+                        <option value="APPROVED">Approve</option>
+                        <option value="REJECTED">Reject</option>
+                        <option value="REVERT">Revert</option>
+                        <option value="FORWARDED">Forward</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Target officer</label>
+                    <select name="forwarded_to" class="form-select">
+                        <option value="">Select officer</option>
+                        {% for u in users %}
+                            <option value="{{ u.id }}">{{ u.officer_name }}{% if u.designation %} - {{ u.designation }}{% endif %}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Remark</label>
+                    <textarea name="remark" rows="6" class="form-control" placeholder="Record the official reasoning or instructions."></textarea>
+                </div>
+                <div class="col-12 d-flex justify-content-end gap-3">
+                    <a href="{% url 'edit_notesheet' note.id %}" class="btn btn-soft">Back</a>
+                    <button class="btn btn-brand">Submit Action</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

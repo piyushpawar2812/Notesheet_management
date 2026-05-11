@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block page_title %}Notesheet Access{% endblock %}
+{% block page_subtitle %}Every notesheet you created, received, or handled is listed here with its current holder and edit state.{% endblock %}
+
+{% block content %}
+<div class="surface-card page-card-body">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <div class="badge-soft mb-2"><i class="fa-solid fa-diagram-project"></i> Flow view</div>
+            <h3 class="fw-bold mb-1">Your notesheet register</h3>
+            <p class="text-secondary mb-0">Open a file to continue work if it is with you, or inspect it in read-only mode if another officer currently holds it.</p>
+        </div>
+        <a href="{% url 'create_notesheet' %}" class="btn btn-brand">New Notesheet</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table-modern">
+            <thead>
+                <tr>
+                    <th>Notesheet</th>
+                    <th>Department</th>
+                    <th>Created By</th>
+                    <th>Current Holder</th>
+                    <th>Status</th>
+                    <th>Open</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in notes %}
+                    <tr>
+                        <td>
+                            <div class="fw-bold">{{ row.instance.notesheet_no }}</div>
+                            <div class="text-secondary small">{{ row.instance.title }}</div>
+                        </td>
+                        <td>{{ row.instance.department.department_name|default:"Not assigned" }}</td>
+                        <td>{{ row.instance.created_by.officer_name }}</td>
+                        <td>{{ row.current_holder.officer_name }}</td>
+                        <td>
+                            {% if row.can_edit %}
+                                <span class="status-chip success"><i class="fa-solid fa-pen-to-square"></i> Editable</span>
+                            {% elif row.instance.forwarded_to %}
+                                <span class="status-chip warning"><i class="fa-solid fa-lock"></i> With {{ row.instance.forwarded_to.officer_name }}</span>
+                            {% else %}
+                                <span class="status-chip"><i class="fa-solid fa-clock"></i> Draft</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% if row.can_edit %}{% url 'edit_notesheet' row.instance.id %}{% else %}{% url 'open_sent_file' row.instance.id %}{% endif %}" class="btn btn-soft">
+                                Open
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-secondary py-5">No notesheets are visible yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

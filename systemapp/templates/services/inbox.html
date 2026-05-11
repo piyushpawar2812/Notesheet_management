@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block page_title %}Inbox{% endblock %}
+{% block page_subtitle %}Files currently assigned to you and ready for comment, attachment, or onward movement.{% endblock %}
+
+{% block content %}
+<div class="surface-card page-card-body">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <div class="badge-soft mb-2"><i class="fa-solid fa-inbox"></i> Current holder view</div>
+            <h3 class="fw-bold mb-1">Notesheets with you</h3>
+            <p class="text-secondary mb-0">These files are editable because you are the current officer holding them.</p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table-modern">
+            <thead>
+                <tr>
+                    <th>Notesheet</th>
+                    <th>From</th>
+                    <th>Department</th>
+                    <th>Last movement</th>
+                    <th>Open</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for note in notes %}
+                    <tr>
+                        <td>
+                            <div class="fw-bold">{{ note.notesheet_no }}</div>
+                            <div class="text-secondary small">{{ note.title }}</div>
+                        </td>
+                        <td>{{ note.created_by.officer_name }}</td>
+                        <td>{{ note.department.department_name|default:"Not assigned" }}</td>
+                        <td>{{ note.remarks.last.created_at|date:"d M Y, h:i A"|default:note.created_at }}</td>
+                        <td><a href="{% url 'edit_notesheet' note.id %}" class="btn btn-brand">Open</a></td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-secondary py-5">Your inbox is clear right now.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

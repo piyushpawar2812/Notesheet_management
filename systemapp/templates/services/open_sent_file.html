@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block page_title %}Sent View | {{ note.notesheet_no }}{% endblock %}
+{% block page_subtitle %}Read-only notesheet view for a file that is currently with another officer.{% endblock %}
+
+{% block content %}
+<style>
+    .remark-html {
+        color: var(--text);
+        line-height: 1.7;
+    }
+
+    .attachment-tile {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 12px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: #fff7f2;
+        border: 1px solid rgba(255, 107, 53, 0.14);
+        text-decoration: none;
+        color: #b4471d;
+        font-weight: 700;
+    }
+ </style>
+
+<div class="surface-card page-card-body mb-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+        <div>
+            <div class="badge-soft mb-2"><i class="fa-solid fa-lock"></i> Read-only mode</div>
+            <h3 class="fw-bold mb-1">{{ note.title }}</h3>
+            <p class="text-secondary mb-0">This notesheet is visible from your Sent Register, but it cannot be updated until it comes back to you.</p>
+        </div>
+        <div class="status-chip warning"><i class="fa-solid fa-user-clock"></i> Currently with {{ current_holder.officer_name }}</div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="surface-card page-card-body h-100">
+            <h4 class="fw-bold mb-3">Shared remark trail</h4>
+            <div class="d-grid gap-3">
+                {% for item in timeline %}
+                    <div class="p-4 rounded-4 border bg-white">
+                        <div class="badge-soft mb-3">{{ item.label }}</div>
+                        <div class="remark-html mb-2">
+                            {% if item.remark_text %}
+                                {{ item.remark_text|safe }}
+                            {% elif item.event_type == 'document' %}
+                                <span class="text-secondary">Supporting document uploaded to this notesheet.</span>
+                            {% else %}
+                                <span class="text-secondary">No text added.</span>
+                            {% endif %}
+                        </div>
+                        {% if item.attachment %}
+                            <a href="{{ item.attachment_full_url }}" target="_blank" class="attachment-tile">
+                                <i class="fa-solid fa-paperclip"></i>
+                                <span>{{ item.attachment_name }}</span>
+                            </a>
+                        {% endif %}
+                        <div class="small text-secondary mt-3">
+                            {{ item.created_by.officer_name }} on {{ item.created_at|date:"d M Y, h:i A" }}
+                            {% if item.forwarded_to %}
+                                | moved to {{ item.forwarded_to.officer_name }}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="p-4 rounded-4 border bg-white text-secondary">No remarks are available yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="surface-card page-card-body">
+            <h4 class="fw-bold mb-3">Visible officers</h4>
+            <div class="d-grid gap-3">
+                {% for participant in participants %}
+                    <div class="participant-chip">
+                        <div class="fw-bold">{{ participant.officer_name }}</div>
+                        <div class="small text-secondary">{{ participant.designation|default:"Officer" }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
