@@ -379,17 +379,7 @@ def handle_post(request, note, user):
             note.id
         )
 
-    # =========================================
-    # CLOSE INVENTORY
-    # =========================================
-
-    elif action_type == 'close_inventory':
-
-        return close_inventory(
-            request,
-            note.id
-        )
-
+   
     # =========================================
     # INVALID ACTION
     # =========================================
@@ -987,6 +977,21 @@ def add_quotation(request, pk):
 
     quotation_file = request.FILES.get(
         'quotation_file')
+    
+    vendor_name=request.POST.get(
+            'vendor_name'
+        ),
+
+    gst_number=request.POST.get(
+            'gst_number'
+        ),
+
+    quote_price=request.POST.get(
+            'quote_price'
+        ),
+    address=   quote_price=request.POST.get(
+            'quote_price'
+        ),
 
     QuotationItem.objects.create(
 
@@ -996,7 +1001,15 @@ def add_quotation(request, pk):
 
         quantity=quantity,
 
-        unit_price=unit_price
+        unit_price=unit_price,
+        
+        quotation_file=quotation_file,
+        vendor_name=vendor_name,
+        gst_number=gst_number,
+        quote_price=quote_price,
+        address=address,
+        
+        
     )
 
     chairman = get_chairman_user()
@@ -1091,30 +1104,6 @@ def add_vendor(request, pk):
         id=pk
     )
 
-    VendorDetail.objects.create(
-
-        notesheet=note,
-
-        vendor_name=request.POST.get(
-            'vendor_name'
-        ),
-
-        gst_number=request.POST.get(
-            'gst_number'
-        ),
-
-        quote_price=request.POST.get(
-            'quote_price'
-        ),
-
-        unit_price=request.POST.get(
-            'unit_price'
-        ),
-
-        # address=request.POST.get(
-        #     'address'
-        # )
-    )
 
     chairman = get_chairman_user()
 
@@ -1172,8 +1161,6 @@ def chairman_final_approve(request, pk):
     )
 
     note.save()
-
-    generate_po_pdf(note)
 
     NoteRemark.objects.create(
 
@@ -1248,53 +1235,6 @@ def finance_payment_approve(request, pk):
 # CLOSE INVENTORY
 # =====================================================
 
-def close_inventory(request, pk):
-
-    note = get_object_or_404(
-        NoteSheet,
-        id=pk
-    )
-
-    items = QuotationItem.objects.filter(
-        notesheet=note
-    )
-
-    vendor = VendorDetail.objects.filter(
-        notesheet=note
-    ).first()
-
-    for item in items:
-
-        InventoryRegister.objects.create(
-
-            notesheet=note,
-
-            item_name=item.item_name,
-
-            quantity=item.quantity,
-
-            unit_price=item.unit_price,
-
-            vendor_name=vendor.vendor_name,
-
-            stock_entry_date=date.today()
-        )
-
-    note.procurement_status = 'CLOSED'
-
-    note.forwarded_to = None
-
-    note.save()
-
-    messages.success(
-        request,
-        "Inventory closed."
-    )
-
-    return redirect(
-        'edit_notesheet',
-        pk=pk
-    )
 
 
 
@@ -1396,206 +1336,3 @@ def get_procurement_actions(note, user):
 
     return actions
 
-
-def generate_po_pdf(note):
-
-    buffer = io.BytesIO()
-
-    p = canvas.Canvas(buffer)
-
-    # =========================================
-    # HEADER
-    # =========================================
-
-    p.setFont(
-        "Helvetica-Bold",
-        18
-    )
-
-    p.drawString(
-        180,
-        800,
-        "PURCHASE ORDER"
-    )
-
-    # =========================================
-    # BASIC DETAILS
-    # =========================================
-
-    p.setFont(
-        "Helvetica",
-        12
-    )
-
-    p.drawString(
-        50,
-        760,
-        f"Notesheet No : {note.notesheet_no}"
-    )
-
-    p.drawString(
-        50,
-        740,
-        f"Date : {date.today()}"
-    )
-
-    # =========================================
-    # VENDOR DETAILS
-    # =========================================
-
-    vendor = VendorDetail.objects.filter(
-        notesheet=note
-    ).first()
-
-    if vendor:
-
-        p.drawString(
-            50,
-            700,
-            f"Vendor : {vendor.vendor_name}"
-        )
-
-        p.drawString(
-            50,
-            680,
-            f"GST No : {vendor.gst_number}"
-        )
-
-        # p.drawString(
-        #     50,
-        #     660,
-        #     f"Address : {vendor.address}"
-        # )
-
-    # =========================================
-    # TABLE HEADER
-    # =========================================
-
-    y = 600
-
-    p.setFont(
-        "Helvetica-Bold",
-        11
-    )
-
-    p.drawString(50, y, "Item")
-    p.drawString(250, y, "Qty")
-    p.drawString(320, y, "Unit Price")
-    p.drawString(450, y, "Total")
-
-    y -= 20
-
-    # =========================================
-    # ITEMS
-    # =========================================
-
-    p.setFont(
-        "Helvetica",
-        11
-    )
-
-    grand_total = Decimal('0.00')
-
-    items = QuotationItem.objects.filter(
-        notesheet=note
-    )
-
-    for item in items:
-
-        total = (
-            Decimal(item.quantity) *
-            Decimal(item.unit_price)
-        )
-
-        grand_total += total
-
-        p.drawString(
-            50,
-            y,
-            str(item.item_name)
-        )
-
-        p.drawString(
-            250,
-            y,
-            str(item.quantity)
-        )
-
-        p.drawString(
-            320,
-            y,
-            str(item.unit_price)
-        )
-
-        p.drawString(
-            450,
-            y,
-            str(total)
-        )
-
-        y -= 20
-
-    # =========================================
-    # GRAND TOTAL
-    # =========================================
-
-    y -= 20
-
-    p.setFont(
-        "Helvetica-Bold",
-        12
-    )
-
-    p.drawString(
-        320,
-        y,
-        "Grand Total :"
-    )
-
-    p.drawString(
-        450,
-        y,
-        str(grand_total)
-    )
-
-    # =========================================
-    # FOOTER
-    # =========================================
-
-    y -= 80
-
-    p.setFont(
-        "Helvetica",
-        11
-    )
-
-    p.drawString(
-        50,
-        y,
-        "Approved By Chairman"
-    )
-
-    # =========================================
-    # SAVE PDF
-    # =========================================
-
-    p.showPage()
-
-    p.save()
-
-    pdf = buffer.getvalue()
-
-    buffer.close()
-
-    filename = (
-        f"PO_{note.notesheet_no}.pdf"
-    )
-
-    note.purchase_order_file.save(
-
-        filename,
-
-        ContentFile(pdf),
-
-        save=True
-    )

@@ -443,8 +443,9 @@
 }
 
 </style>
-
-
+<div class="fw-bold mb-2" >Notesheet title 
+{{ note.title }}
+</div>
 <div class="workspace-grid">
 
 <!-- LEFT : REMARK TRAIL -->
@@ -552,7 +553,7 @@
 
     {% if procurement_actions %}
 
-<div class="d-flex gap-2 mt-3 flex-wrap">
+<div class="d-flex gap-2 mt-3 flex-wrap ">
 
     {% for action in procurement_actions %}
 
@@ -580,7 +581,7 @@
 </div>
 
     <!-- TOP RIGHT : FORWARD -->
-    <div class="surface-card forward-panel">
+    <div class="surface-card forward-panel ">
 
         <h4 class="fw-bold mb-3">Forward Notesheet</h4>
 
@@ -691,7 +692,7 @@
 
     </div>
     
-<div class="hero-strip">
+<div class="hero-strip ">
     <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
         <div>
             <div class="badge-soft mb-3"><i class="fa-solid fa-file-lines"></i> Flow workspace</div>
@@ -700,8 +701,7 @@
         </div>
     </div>
 
-    <div class="meta-grid">
-        <div class="meta-card">
+        <div class="hero-strip">
             <div class="small text-white-50">For Department</div>
             <div class="fw-bold mt-1">{{ note.department.department_name|default:"Not assigned" }}</div>
         </div>

@@ -1,13 +1,6 @@
 from django.urls import path
 from . import views
-from .views_purchase import (
-    chairman_approve_view,
-    add_quotation_view,
-    add_vendor_view,
-    final_approve_view,
-    finance_approve_view,
-    stock_entry_view,
-)
+
 
 urlpatterns = [
 
@@ -72,11 +65,11 @@ urlpatterns = [
         name='finance_payment_approve'
     ),
 
-    path(
-        'close-inventory/<int:pk>/',
-        views.close_inventory,
-        name='close_inventory'
-    ),
+    # path(
+    #     'close-inventory/<int:pk>/',
+    #     views.close_inventory,
+    #     name='close_inventory'
+    # ),
 
     path(
     'add-quotation/<int:pk>/',

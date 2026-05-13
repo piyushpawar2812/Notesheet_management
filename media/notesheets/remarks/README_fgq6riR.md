@@ -208,23 +208,7 @@ CREATE TABLE systemapp_quotationitem (
     total_price DECIMAL(12,2),
     created_at TIMESTAMP
 );
-
--- VendorDetail: Selected vendor information
-CREATE TABLE systemapp_vendordetail (
-    id BIGINT PRIMARY KEY,
-    notesheet_id BIGINT FK UNIQUE,
-    vendor_name VARCHAR(255),
-    gst_number VARCHAR(50),
-    quote_price DECIMAL(12,2),
-    unit_price DECIMAL(12,2),
-    contact_person VARCHAR(255),
-    contact_email VARCHAR(254),
-    contact_phone VARCHAR(20),
-    address TEXT,
-    uploaded_by_id BIGINT FK,
-    created_at TIMESTAMP
-);
-```
+s
 
 ### Modified Tables
 

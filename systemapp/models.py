@@ -191,72 +191,23 @@ class QuotationItem(models.Model):
 
     item_name = models.CharField(max_length=255)
 
-    quantity = models.PositiveIntegerField()
+    quantity = models.CharField(max_length=255,blank=True)
 
     unit_price = models.DecimalField(
         max_digits=12,
         decimal_places=2
     )
-
-    total_price = models.DecimalField(
-        max_digits=12,
-        decimal_places=2
-    )
-
+    total_price= models.CharField(max_length=255,null=True,blank=True)
+    vendor_name = models.CharField(max_length=255,null=True,blank=True)
+    
+    quote_price = models.CharField(max_length=50,blank=True,null=True)
+    
+    gst_number = models.CharField(max_length=50,blank=True,null=True)
+    
+    quotation_file = models.FileField(upload_to='notesheets/quotations/', validators=[validate_note_attachment], null=True, blank=True)
+    
+    address=models.CharField(blank=True,null=True)
+    
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def save(self, *args, **kwargs):
-
-        self.total_price = (
-            self.quantity *
-            self.unit_price
-        )
-
-        super().save(*args, **kwargs)
-
-
-class VendorDetail(models.Model):
-
-    notesheet = models.ForeignKey(
-        NoteSheet,
-        on_delete=models.CASCADE
-    )
-
-    vendor_name = models.CharField(max_length=255)
-
-    gst_number = models.CharField(max_length=50)
-
-    quote_price = models.CharField(blank=True,null=True)
-
-    unit_price = models.CharField(blank=True,null=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.notesheet.notesheet_no} - {self.vendor_name}"
-
-
-class InventoryRegister(models.Model):
-
-    notesheet = models.ForeignKey(
-        NoteSheet,
-        on_delete=models.CASCADE
-    )
-
-    item_name = models.CharField(max_length=255)
-
-    quantity = models.PositiveIntegerField()
-
-    unit_price = models.DecimalField(
-        max_digits=12,
-        decimal_places=2
-    )
-
-    vendor_name = models.CharField(max_length=255)
-
-    stock_entry_date = models.DateField()
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.item_name

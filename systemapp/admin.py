@@ -14,8 +14,6 @@ from systemapp.models import (
     NoteRemark,
     ProcurementQuotation,
     QuotationItem,
-    VendorDetail,
-    InventoryRegister
 )
 
 
@@ -126,17 +124,6 @@ class QuotationItemInline(admin.TabularInline):
 
 
 # =========================================================
-# VENDOR DETAIL INLINE
-# =========================================================
-
-class VendorDetailInline(admin.TabularInline):
-
-    model = VendorDetail
-
-    extra = 1
-
-
-# =========================================================
 # NOTESHEET ADMIN
 # =========================================================
 
@@ -172,7 +159,6 @@ class NoteSheetAdmin(admin.ModelAdmin):
     inlines = [
         NoteDocumentInline,
         QuotationItemInline,
-        VendorDetailInline,
     ]
 
 
@@ -271,59 +257,23 @@ class QuotationItemAdmin(admin.ModelAdmin):
         'quantity',
         'unit_price',
         'total_price',
+        'vendor_name',
+        'gst_number',
+        'quote_price',
         'created_at',
     )
 
     search_fields = (
         'item_name',
         'notesheet__notesheet_no',
-    )
-
-
-# =========================================================
-# VENDOR DETAIL ADMIN
-# =========================================================
-
-@admin.register(VendorDetail)
-class VendorDetailAdmin(admin.ModelAdmin):
-
-    list_display = (
-        'notesheet',
         'vendor_name',
         'gst_number',
         'quote_price',
-        'unit_price',
-        'created_at',
     )
 
-    search_fields = (
-        'vendor_name',
-        'notesheet__notesheet_no',
-    )
 
+# =======================================================
 
 # =========================================================
 # INVENTORY REGISTER ADMIN
 # =========================================================
-
-@admin.register(InventoryRegister)
-class InventoryRegisterAdmin(admin.ModelAdmin):
-
-    list_display = (
-        'notesheet',
-        'item_name',
-        'quantity',
-        'unit_price',
-        'vendor_name',
-        'stock_entry_date',
-    )
-
-    search_fields = (
-        'item_name',
-        'vendor_name',
-        'notesheet__notesheet_no',
-    )
-
-    list_filter = (
-        'stock_entry_date',
-    )
