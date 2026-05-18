@@ -1,13 +1,83 @@
 {% extends "base.html" %}
 
 
-{% block page_title %}{{ note.notesheet_no }}{% endblock %}
+{% block page_title %}
+Note No.-{{ note.notesheet_no }} <br>
+Title-{{ note.title }}{% endblock %}
 {% block page_subtitle %}Modern notesheet workspace with a visible discussion trail, inline attachments, and clean forwarding controls.{% endblock %}
 {% block content %}
-
 {% include 'services/purchase_flow.html' %}
+<!-- PURCHASE OFFICER QUOTATION ENTRY -->
+
+{% if request.session.role|lower == "purchase" %}
+
+    {% if note.procurement_status == "QUOTATION_ENTRY" or note.procurement_status == "QUOTATION_REVERT" %}
+
+        {% include 'services/purchase_officer_form.html' %}
+
+    {% endif %}
+
+{% endif %}
+
+{% if request.session.role|lower == "chairman" %}
+    <!-- CHAIRMAN QUOTATION REVIEW -->
+    {% if note.procurement_status == "QUOTATION_PENDING_CHAIRMAN" %}
+
+        {% include 'services/chairman_quotation_review.html' %}
+
+    {% endif %}
+ {% endif %}
+{% if note.procurement_status == "PO_PENDING" and can_edit %}
+
+    {% include 'services/generate_po.html' %}
+
+{% endif %}{% if request.session.role|lower == "purchase" %}
+
+    <!-- INVENTORY ENTRY -->
+    {% if note.procurement_status == "INVENTORY_PENDING" %}
+
+        {% include 'services/inventory_entry.html' %}
+
+    {% endif %}
+
+{% endif %}
 
 
+
+{% if request.session.role|lower == "finance" %}
+
+    <!-- FINANCE APPROVAL -->
+    {% if note.procurement_status == "FINANCE_PENDING" or note.procurement_status == "FINAL_FINANCE_APPROVAL" %}
+
+        {% include 'services/finance_approval.html' %}
+
+    {% endif %}
+
+{% endif %}
+
+
+
+{% if request.session.role|lower == "chairman" %}
+
+    <!-- CHAIRMAN BILL APPROVAL -->
+    {% if note.procurement_status == "BILL_PENDING_CHAIRMAN" %}
+
+        {% include 'services/finance_approval.html' %}
+
+    {% endif %}
+
+{% endif %}
+{% if note.po_pdf %}
+
+<a href="{{ note.po_pdf.url }}"
+   target="_blank"
+   class="btn btn-success">
+
+    View Purchase Order PDF
+
+</a>
+
+{% endif %}
 <style>
   .hero-strip {
     background: linear-gradient(135deg, #0f172a, #1e293b);
@@ -335,13 +405,6 @@
 }
 /* MAIN THREAD BOX */
 
-.remark-thread-box {
-    border: 1px solid #000000;
-    border-radius: 14px;
-    overflow: hidden;
-    background: #86eb4c;
-}
-
 /* SINGLE NOTE LINE */
 
 .remark-line {
@@ -360,6 +423,7 @@
     line-height: 1.7;
     color: #0c0c0c;
     margin-bottom: 10px;
+    background: #f8fafc;
 }
 
 /* ATTACHMENT */
@@ -402,50 +466,199 @@
         align-items: flex-start;
     }
 }
+/* =========================================
+   REMARK RENDER AREA
+========================================= */
 
-.remark-thread-box {
+.remark-render-area {
 
-    max-height: 520px;   /* height control */
+    width: 100%;
+
+    max-width: 100%;
+
+    max-height: 650px;
+
+    overflow-x: auto;
 
     overflow-y: auto;
 
-    overflow-x: hidden;
+    padding: 12px;
 
-    padding-right: 6px;
+    font-size: 15px;
 
-    scroll-behavior: smooth;
+    line-height: 1.8;
+
+    color: #111827;
+
+    background: #ffffff;
+
+    border-radius: 12px;
+
+    border: 1px solid #d1d5db;
 }
 
-/* SCROLLBAR */
+/* =========================================
+   CUSTOM SCROLLBAR
+========================================= */
 
-.remark-thread-box::-webkit-scrollbar {
+.remark-render-area::-webkit-scrollbar {
 
-    width: 8px;
+    width: 10px;
+
+    height: 10px;
 }
 
-.remark-thread-box::-webkit-scrollbar-track {
+.remark-render-area::-webkit-scrollbar-track {
 
     background: #e5e7eb;
 
-    border-radius: 10px;
+    border-radius: 20px;
 }
 
-.remark-thread-box::-webkit-scrollbar-thumb {
+.remark-render-area::-webkit-scrollbar-thumb {
 
     background: #94a3b8;
 
-    border-radius: 10px;
+    border-radius: 20px;
 }
 
-.remark-thread-box::-webkit-scrollbar-thumb:hover {
+.remark-render-area::-webkit-scrollbar-thumb:hover {
 
     background: #64748b;
 }
 
+/* =========================================
+   HEADINGS
+========================================= */
+
+.remark-render-area h1,
+.remark-render-area h2,
+.remark-render-area h3,
+.remark-render-area h4,
+.remark-render-area h5,
+.remark-render-area h6 {
+
+    margin-top: 12px;
+
+    margin-bottom: 12px;
+
+    font-weight: 700;
+}
+
+/* =========================================
+   TABLE
+========================================= */
+
+.remark-render-area table {
+
+    width: max-content;
+
+    min-width: 100%;
+
+    border-collapse: collapse !important;
+
+    margin-top: 16px;
+
+    margin-bottom: 16px;
+}
+
+/* TABLE BORDER */
+
+.remark-render-area table,
+.remark-render-area th,
+.remark-render-area td {
+
+    border: 1px solid #d1d5db !important;
+}
+
+/* TABLE CELL */
+
+.remark-render-area th,
+.remark-render-area td {
+
+    padding: 10px 14px;
+
+    vertical-align: top;
+
+    text-align: left;
+
+    white-space: nowrap;
+}
+
+/* TABLE HEADER */
+
+.remark-render-area th {
+
+    background: #59da8a;
+
+    font-weight: 700;
+}
+
+/* =========================================
+   PARAGRAPH
+========================================= */
+
+.remark-render-area p {
+
+    margin-bottom: 12px;
+}
+
+/* =========================================
+   LIST
+========================================= */
+
+.remark-render-area ul,
+.remark-render-area ol {
+
+    padding-left: 24px;
+
+    margin-bottom: 14px;
+}
+
+/* =========================================
+   IMAGE
+========================================= */
+
+.remark-render-area img {
+
+    max-width: 100%;
+
+    height: auto;
+
+    border-radius: 10px;
+
+    margin-top: 10px;
+}
+
+/* =========================================
+   EXCEL PASTE
+========================================= */
+
+.remark-render-area .mce-item-table {
+
+    width: max-content !important;
+
+    min-width: 100% !important;
+}
+
+/* =========================================
+   CODE BLOCK
+========================================= */
+
+.remark-render-area pre {
+
+    background: #111827;
+
+    color: white;
+
+    padding: 14px;
+
+    border-radius: 10px;
+
+    overflow-x: auto;
+}
 </style>
-<div class="fw-bold mb-2" >Notesheet title 
-{{ note.title }}
-</div>
+
 <div class="workspace-grid">
 
 <!-- LEFT : REMARK TRAIL -->
@@ -460,7 +673,7 @@
         </div>
     </div>
 <!-- SINGLE MAIN DIV -->
-<div class="remark-thread-box">
+<div class="remark-render-area">
 
     {% for item in remarks %}
 
@@ -470,25 +683,17 @@
 
             <div class="remark-text-area">
             {% if item.remark_text %}
-                  <h6>#Note {{ forloop.counter }}-{{ item.remark_text|safe }}</h6>
+                  <h3>#Note {{ forloop.counter }}-{{ item.remark_text|safe }}</h3>
                 {% else %}
 
                     <span class="text-secondary">
                         No text added.
                     </span>
+                    
 
                 {% endif %}
 
-                {% if item.forwarded_to %}
-
-                    <div class="small text-muted mt-2">
-
-                        Forwarded to:
-                        {{ item.forwarded_to.officer_name }}
-
-                    </div>
-
-                {% endif %}
+            
 
             </div>
            
@@ -517,30 +722,46 @@
 
             <div class="remark-footer">
 
-                <div>
+    <div>
 
-                    <strong>
-                        {{ item.created_by.officer_name }}
-                    </strong>
+        <strong>
+           By- {{ item.created_by.officer_name }}
+        </strong>
 
-                    {% if item.created_by.designation %}
+        {% if item.created_by.designation %}
 
-                        - {{ item.created_by.designation }}
+            - {{ item.created_by.designation }}
 
-                    {% endif %}
+        {% endif %}
 
-                </div>
+        {% if item.forwarded_to %}
 
-                <div>
+            <div class="mt-1 text-muted">
 
-                    {{ item.created_at|date:"d/m/Y h:i A" }}
+                <strong>Forwarded To:</strong>
 
-                </div>
+                {{ item.forwarded_to.officer_name }}
+
+                {% if item.forwarded_to.designation %}
+
+                    - {{ item.forwarded_to.designation }}
+
+                {% endif %}
 
             </div>
 
-        </div>
+        {% endif %}
 
+    </div>
+
+    <div>
+
+        {{ item.created_at|date:"d/m/Y h:i A" }}
+
+    </div>
+
+</div>
+</div>
     {% empty %}
 
         <div class="text-secondary">
@@ -553,28 +774,6 @@
 
     {% if procurement_actions %}
 
-<div class="d-flex gap-2 mt-3 flex-wrap ">
-
-    {% for action in procurement_actions %}
-
-        <form method="POST">
-
-            {% csrf_token %}
-
-            <button
-                type="submit"
-                name="action_type"
-                value="{{ action.key }}"
-                class="btn {{ action.class }}"
-            >
-                {{ action.label }}
-            </button>
-
-        </form>
-
-    {% endfor %}
-
-</div>
 
 {% endif %}
 </div>
@@ -696,13 +895,11 @@
     <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
         <div>
             <div class="badge-soft mb-3"><i class="fa-solid fa-file-lines"></i> Flow workspace</div>
-            <h2 class="fw-bold mb-2">{{ note.title }}</h2>
-            <p class="mb-0 text-white-50">{{ note.description|default:"No separate summary added for this notesheet." }}</p>
         </div>
     </div>
 
         <div class="hero-strip">
-            <div class="small text-white-50">For Department</div>
+            <div class="small text-white-50">For Collage</div>
             <div class="fw-bold mt-1">{{ note.department.department_name|default:"Not assigned" }}</div>
         </div>
            <div class="meta-card">
@@ -729,7 +926,190 @@
     </div>
 </div>
 
+{% if quotations %}
 
+<div class="card mt-4">
+
+    <div class="card-header bg-dark text-white">
+
+        Vendor Quotations
+
+    </div>
+
+    <div class="card-body">
+
+        <table class="table table-bordered">
+
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Vendor</th>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Unit Price</th>
+                    <th>Quate Price</th>
+                    <th>Uploaded File</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for q in quotations %}
+
+                <tr {% if q.is_l1 %}class="table-success"{% endif %}>
+
+                <td>
+
+        {% if q.is_l1 %}
+
+            <span class="badge bg-success">
+                L1 Winner
+            </span>
+
+        {% else %}
+
+            <span class="badge bg-secondary">
+                Participated
+            </span>
+
+        {% endif %}
+
+    </td>
+
+
+                    <td>{{ q.vendor_name }}</td>
+
+                    <td>{{ q.item_name }}</td>
+
+                    <td>{{ q.quantity }}</td>
+
+                    <td>{{ q.unit_price }}</td>
+
+                    <td>{{ q.quote_price }}</td>
+
+                    <td>
+
+                        {% if q.quotation_file %}
+
+                        <a href="{{ q.quotation_file.url }}"
+                           target="_blank">
+
+                            View File
+
+                        </a>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-------------------------->
+{% if purchase_order %}
+
+<div class="card mt-4">
+
+    <div class="card-header bg-success text-white">
+
+        Purchase Order
+
+    </div>
+
+    <div class="card-body">
+
+        <p>
+
+            <strong>PO Number:</strong>
+
+            {{ purchase_order.po_number }}
+
+        </p>
+
+        <p>
+
+            <strong>Vendor:</strong>
+
+            {{ purchase_order.vendor_name }}
+
+        </p>
+
+        <a href="{{ purchase_order.po_file.url }}"
+           target="_blank"
+           class="btn btn-primary">
+
+            View PO PDF
+
+        </a>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+{% if inventory_items %}
+
+<div class="card mt-4">
+
+    <div class="card-header bg-warning">
+
+        Inventory Entries
+
+    </div>
+
+    <div class="card-body">
+
+        <table class="table table-bordered">
+
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Supplier</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in inventory_items %}
+
+                <tr>
+
+                    <td>{{ item.item_name }}</td>
+
+                    <td>{{ item.quantity }}</td>
+
+                    <td>{{ item.supplier_name }}</td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+
+
+</div>
+
+{% endif %}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js" referrerpolicy="origin"></script>
@@ -745,6 +1125,15 @@
             height: 360,
             plugins: 'lists link table code wordcount autoresize preview searchreplace visualblocks',
             toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | table link | removeformat preview code',
+            paste_data_images: true,
+paste_as_text: false,
+table_default_attributes: {
+    border: '1'
+},
+table_default_styles: {
+    width: '100%',
+    borderCollapse: 'collapse'
+},
             content_style: 'body { font-family: Calibri, Arial, sans-serif; font-size: 15px; line-height: 1.6; margin: 16px; }',
             autoresize_bottom_margin: 16
         });

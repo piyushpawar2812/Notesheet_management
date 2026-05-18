@@ -1,0 +1,8 @@
+login_id,password,officer_name,department,employee_no,designation,mobile_no,status,is_deleted,created_date,updated_date,role_id
+chairman,chairman,chairman,chairman,123,chairman,123,TRUE,FALSE,2026-05-15 09:25:17.063847+05:30,2026-05-15 09:25:17.063847+05:30,4
+director,director,director,director,123,director,123,TRUE,FALSE,2026-05-15 09:25:17.063847+05:30,2026-05-15 09:25:17.063847+05:30,2
+finance,finance,finance,finance,123,finance,123,TRUE,FALSE,2026-05-15 09:25:17.063847+05:30,2026-05-15 09:25:17.063847+05:30,3
+chairman,chairman,chairman,chairman,123,chairman,123,TRUE,FALSE,2026-05-15 09:25:17.063847+05:30,2026-05-15 09:25:17.063847+05:30,4
+admin,admin,admin,admin,123,admin,123,TRUE,FALSE,2026-05-15 09:25:17.063847+05:30,2026-05-15 09:25:17.063847+05:30,5
+purchase,purchase,purchase,purchase,123,purchase,123,TRUE,FALSE,2026-05-15 09:25:17.063847+05:30,2026-05-15 09:25:17.063847+05:30,6
+hod,hod1,hod,hod,123,hod,123,TRUE,FALSE,2026-05-15 09:25:17.063847+05:30,2026-05-15 09:25:17.063847+05:30,1

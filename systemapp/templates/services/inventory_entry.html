@@ -1,0 +1,152 @@
+{% if note.procurement_status == "INVENTORY_PENDING" %}
+
+<div class="card mt-4 shadow-sm">
+
+    <div class="card-header bg-success text-white">
+
+        <h5 class="mb-0">
+            Inventory Entry / Material Received
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <form method="POST"
+              action="{% url 'inventory_received' note.id %}">
+
+            {% csrf_token %}
+
+            <div class="row">
+
+                <!-- 
+                       Vendor Name -->
+
+                               <div class="col-md-6 mb-3">
+
+                    <label class="form-label fw-bold">
+
+                       Item Category
+
+                    </label>
+
+                    <input type="text"
+                           name="item_name"
+                           class="form-control"
+                           required>
+
+                </div>
+                <!-- ITEM -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label fw-bold">
+
+                        Item Name
+
+                    </label>
+
+                    <input type="text"
+                           name="item_name"
+                           class="form-control"
+                           required>
+
+                </div>
+
+                <!-- QTY -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label fw-bold">
+
+                        Quantity Received
+
+                    </label>
+
+                    <input type="number"
+                           name="quantity"
+                           class="form-control"
+                           required>
+
+                </div>
+
+                <!-- PRICE -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label fw-bold">
+
+                        Price
+
+                    </label>
+
+                    <input type="number"
+                           step="0.01"
+                           name="price"
+                           class="form-control">
+
+                </div>
+
+                <!-- SUPPLIER -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label fw-bold">
+
+                        Supplier Name
+
+                    </label>
+
+                    <input type="text"
+                           name="supplier_name"
+                           class="form-control">
+
+                </div>
+ <!-- Date -->
+                <div class="col-md-6 mb-3">
+
+    <label class="form-label fw-bold">
+
+        Received Date
+
+    </label>
+
+    <input type="date"
+           name="added_date"
+           class="form-control"
+           required>
+
+</div>
+                </div>
+
+                <!-- DESCRIPTION -->
+
+                <div class="col-12 mb-3">
+
+                    <label class="form-label fw-bold">
+
+                        Description
+
+                    </label>
+
+                    <textarea name="description"
+                              rows="4"
+                              class="form-control"></textarea>
+
+                </div>
+
+            </div>
+
+            <button class="btn btn-success col-md-2 mb-3">
+
+                Save Inventory & Send To Finance
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endif %}

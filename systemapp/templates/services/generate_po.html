@@ -1,0 +1,26 @@
+<div class="card mt-4 shadow-sm border-0">
+
+    <div class="card-header bg-success text-white">
+
+        Generate Purchase Order
+
+    </div>
+
+    <div class="card-body">
+
+        <form method="POST"
+              action="{% url 'generate_po' note.id %}">
+
+            {% csrf_token %}
+
+            <button class="btn btn-dark">
+
+                Generate PO PDF
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>

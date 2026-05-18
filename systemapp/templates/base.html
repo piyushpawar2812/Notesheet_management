@@ -366,10 +366,23 @@
                 <span class="sidebar-label">Create Notesheet</span>
             </a>
 
-            <a href="{% url 'dashboard' %}" class="nav-link-tile">
-                <i class="fa-solid fa-chart-line"></i>
-                <span class="sidebar-label">Dashboard</span>
-            </a>
+            {% if request.session.role|lower == "chairman" or request.session.role|lower == "admin" %}
+
+<a href="{% url 'dashboard_view' %}" class="nav-link-tile"> 
+
+    <i class="fa-solid fa-chart-line"></i>
+
+    <span class="sidebar-label">
+        Dashboard
+    </span>
+
+</a>
+
+    {% endif %}
+
+
+
+        
             <a href="{% url 'your_notesheets' %}" class="nav-link-tile">
                 <i class="fa-solid fa-folder-open"></i>
                 <span class="sidebar-label">All My File Access</span>
@@ -382,6 +395,13 @@
                 <i class="fa-solid fa-paper-plane"></i>
                 <span class="sidebar-label">Sent Register</span>
             </a>
+{% if request.session.role|lower == "purchase" %}
+                        <a href="{% url 'inventory_stock' %}" class="nav-link-tile">
+                <i class="fa-solid fa-folder-open"></i>
+                <span class="sidebar-label">Stock Inventory</span>
+            </a>
+{% endif %}
+
             <a href="{% url 'notesheet_search' %}" class="nav-link-tile">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <span class="sidebar-label" type="text"

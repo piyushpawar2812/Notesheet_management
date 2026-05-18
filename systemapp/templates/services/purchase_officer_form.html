@@ -1,0 +1,116 @@
+
+{% if note.procurement_status == "QUOTATION_REVERT" %}
+
+<div class="alert alert-danger">
+
+    <strong>
+        Chairman reverted quotation.
+    </strong>
+
+    Please update vendor quotation and resend.
+
+</div>
+
+{% endif %}
+<div class="card mt-4">
+
+    <div class="card-header bg-primary text-white">
+
+        Add Vendor Quotation
+
+    </div>
+
+    <div class="card-body">
+
+        <form method="POST"
+              action="{% url 'add_quotation' note.id %}"
+              enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <label>Vendor Name</label>
+                    <input type="text"
+                           name="vendor_name"
+                           class="form-control" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label>GST Number</label>
+                    <input type="text"
+                           name="gst_number"
+                           class="form-control">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label>Item Name</label>
+                    <input type="text"
+                           name="item_name"
+                           class="form-control" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label>Quantity</label>
+                    <input type="text"
+                           name="quantity"
+                           class="form-control">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label>Unit Price</label>
+                    <input type="number"
+                           step="0.01"
+                           name="unit_price"
+                           class="form-control">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label>Quotation Price</label>
+                    <input type="text"
+                           name="quote_price"
+                           class="form-control">
+                </div>
+
+                <div class="col-12 mb-3">
+                    <label>Vendor Address</label>
+                    <textarea name="address"
+                              class="form-control"></textarea>
+                </div>
+
+                <div class="col-12 mb-3">
+                    <label>Quotation File</label>
+                    <input type="file"
+                           name="quotation_file"
+                           class="form-control">
+                </div>
+
+            </div>
+
+            <button class="btn btn-success">
+
+                Add Quotation
+
+            </button>
+
+        </form>
+
+        <hr>
+
+        <form method="POST"
+              action="{% url 'send_quotation_to_chairman' note.id %}">
+
+            {% csrf_token %}
+
+            <button class="btn btn-dark">
+
+                Send To Chairman
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>

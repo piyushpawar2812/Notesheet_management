@@ -1,0 +1,38 @@
+<div class="d-flex gap-2 mt-3">
+
+    <!-- APPROVE -->
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <input type="hidden"
+               name="action_type"
+               value="chairman_quotation_approve">
+
+        <button class="btn btn-success">
+
+            Approve Quotation
+
+        </button>
+
+    </form>
+
+    <!-- REVERT -->
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <input type="hidden"
+               name="action_type"
+               value="chairman_quotation_revert">
+
+        <button class="btn btn-danger">
+
+            Revert Quotation
+
+        </button>
+
+    </form>
+</div>

@@ -1,0 +1,129 @@
+{% if note.procurement_status == "FINANCE_PENDING" %}
+
+<div class="card mt-4 shadow-sm border-0">
+
+    <div class="card-header bg-success text-white">
+
+        <h5 class="mb-0">
+            Finance Approval
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="alert alert-info">
+
+            Inventory completed.
+            Finance can now verify billing
+            and send to chairman.
+
+        </div>
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <button
+                type="submit"
+                name="action_type"
+                value="finance_send_to_chairman"
+                class="btn btn-dark"
+            >
+                Send To Chairman
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+
+{% if note.procurement_status == "BILL_PENDING_CHAIRMAN" %}
+
+<div class="card mt-4 shadow-sm border-0">
+
+    <div class="card-header bg-warning">
+
+        <h5 class="mb-0">
+            Chairman Billing Approval
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="alert alert-warning">
+
+            Finance sent billing for chairman approval.
+
+        </div>
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <button
+                type="submit"
+                name="action_type"
+                value="chairman_billing_approve"
+                class="btn btn-success"
+            >
+                Chairman Approve Billing
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+
+{% if note.procurement_status == "FINAL_FINANCE_APPROVAL" %}
+
+<div class="card mt-4 shadow-sm border-0">
+
+    <div class="card-header bg-primary text-white">
+
+        <h5 class="mb-0">
+            Final Finance Approval
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="alert alert-primary">
+
+            Chairman approved billing.
+            Finance can now close procurement.
+
+        </div>
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <button
+                type="submit"
+                name="action_type"
+                value="finance_final_approve"
+                class="btn btn-success"
+            >
+                Final Approve & Close
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endif %}

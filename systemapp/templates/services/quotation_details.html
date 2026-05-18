@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <h3>Quotation Entry</h3>
+
+    <form method="POST"
+          enctype="multipart/form-data"
+          action="{% url 'add_quotation' note.id %}">
+
+        {% csrf_token %}
+
+        <div class="row">
+
+            <div class="col-md-4">
+                <label>Vendor Name</label>
+                <input type="text"
+                       name="vendor_name"
+                       class="form-control">
+            </div>
+
+            <div class="col-md-4">
+                <label>Item Name</label>
+                <input type="text"
+                       name="item_name"
+                       class="form-control">
+            </div>
+
+            <div class="col-md-4">
+                <label>Quantity</label>
+                <input type="text"
+                       name="quantity"
+                       class="form-control">
+            </div>
+
+            <div class="col-md-4 mt-3">
+                <label>Quote Price</label>
+                <input type="text"
+                       name="quote_price"
+                       class="form-control">
+            </div>
+
+            <div class="col-md-4 mt-3">
+                <label>GST Number</label>
+                <input type="text"
+                       name="gst_number"
+                       class="form-control">
+            </div>
+
+            <div class="col-md-4 mt-3">
+                <label>Quotation File</label>
+                <input type="file"
+                       name="quotation_file"
+                       class="form-control">
+            </div>
+
+        </div>
+
+        <button class="btn btn-primary mt-4">
+            Add Vendor
+        </button>
+
+    </form>
+
+    <hr>
+
+    <h4>Vendor Quotations</h4>
+
+    <table class="table table-bordered">
+
+        <thead>
+            <tr>
+                <th>Vendor</th>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Quotation Price</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for q in quotations %}
+
+            <tr>
+                <td>{{ q.vendor_name }}</td>
+                <td>{{ q.item_name }}</td>
+                <td>{{ q.quantity }}</td>
+                <td>{{ q.quote_price }}</td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    <a href="{% url 'send_quotation_to_chairman' note.id %}"
+       class="btn btn-success">
+
+        Send Quotations To Chairman
+
+    </a>
+
+</div>
+
+{% endblock %}

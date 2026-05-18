@@ -1,7 +1,12 @@
 from django.urls import path
 from . import views
-
-
+from systemapp import inventorystock
+from .inventorystock import (
+    inventory_stock,
+    add_inventory_stock,
+    export_inventory_excel,
+    import_inventory_excel
+)
 urlpatterns = [
 
     path('create/', views.create_notesheet, name='create_notesheet'),
@@ -54,32 +59,92 @@ urlpatterns = [
     ),
 
     path(
-        'chairman-final-approve/<int:pk>/',
-        views.chairman_final_approve,
-        name='chairman_final_approve'
-    ),
-
-    path(
-        'finance-payment-approve/<int:pk>/',
-        views.finance_payment_approve,
-        name='finance_payment_approve'
-    ),
-
-    # path(
-    #     'close-inventory/<int:pk>/',
-    #     views.close_inventory,
-    #     name='close_inventory'
-    # ),
-
-    path(
     'add-quotation/<int:pk>/',
     views.add_quotation,
     name='add_quotation'
 ),
+    
+path(
+    'quotation-details/<int:pk>/',
+    views.quotation_details,
+    name='quotation_details'
+),
 
 path(
-    'add-vendor/<int:pk>/',
-    views.add_vendor,
-    name='add_vendor'
+    'send-quotation-chairman/<int:pk>/',
+    views.send_quotation_to_chairman,
+    name='send_quotation_to_chairman'
 ),
+path(
+    'quotation-revert/<int:pk>/',
+    views.chairman_quotation_revert,
+    name='chairman_quotation_revert'
+),
+
+path(
+    'generate-po/<int:pk>/',
+    views.generate_po,
+    name='generate_po'
+),
+path(
+    'inventory-received/<int:pk>/',
+    views.inventory_received,
+    name='inventory_received'
+),
+
+
+path(
+    'finance-send-chairman/<int:pk>/',
+    views.finance_send_to_chairman,
+    name='finance_send_to_chairman'
+),
+
+path(
+    'chairman_billing_approve/<int:pk>/',
+    views.chairman_billing_approve,
+    name='chairman_billing_approve'
+),
+
+path(
+    'finance-final-approve/<int:pk>/',
+    views.finance_final_approve,
+    name='finance_final_approve'
+),
+
+
+
+
+path(
+    'inventory-stock/',
+    inventorystock.inventory_stock,
+    name='inventory_stock'
+),
+
+path(
+    'add-inventory-stock/',
+    inventorystock.add_inventory_stock,
+    name='add_inventory_stock'
+),
+
+path(
+    'export-inventory-excel/',
+    inventorystock.export_inventory_excel,
+    name='export_inventory_excel'
+),
+
+path(
+    'import-inventory-excel/',
+    inventorystock.import_inventory_excel,
+    name='import_inventory_excel'
+),
+
+path(
+    'dashboard-view/',
+    views.dashboard_view,
+    name='dashboard_view'
+),
+
+
+
+
 ]

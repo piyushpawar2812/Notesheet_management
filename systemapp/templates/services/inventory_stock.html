@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+    <div class="card shadow border-0">
+
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+            <h4 class="mb-0">
+                Inventory Stock
+            </h4>
+
+            <div class="d-flex gap-2 flex-wrap">
+
+                <a href="{% url 'export_inventory_excel' %}"
+                   class="btn btn-success btn-sm">
+                    Export Excel
+                </a>
+
+                <button
+                    class="btn btn-primary btn-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#addInventoryModal">
+                    Add Inventory
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="card-body">
+
+            <!-- SEARCH -->
+
+            <form method="GET" class="row mb-3">
+
+                <div class="col-md-4">
+
+                    <input type="text"
+                           name="search"
+                           value="{{ search }}"
+                           class="form-control"
+                           placeholder="Search item...">
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <button class="btn btn-dark w-100">
+                        Search
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <!-- IMPORT EXCEL -->
+
+            <form method="POST"
+                  action="{% url 'import_inventory_excel' %}"
+                  enctype="multipart/form-data"
+                  class="row mb-4">
+
+                {% csrf_token %}
+
+                <div class="col-md-4">
+
+                    <input type="file"
+                           name="excel_file"
+                           class="form-control"
+                           required>
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <button class="btn btn-success w-100">
+                        Import Excel
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <!-- TABLE -->
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover align-middle">
+
+                    <thead class="table-dark">
+
+                        <tr>
+                            <th>ID</th>
+                            <th>Category</th>
+                            <th>Item</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Supplier</th>
+                            <th>Received Date</th>
+                            <th>Status</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for item in page_obj %}
+
+                        <tr>
+
+                            <td>{{ item.id }}</td>
+
+                            <td>{{ item.category }}</td>
+
+                            <td>{{ item.item_name }}</td>
+
+                            <td>{{ item.quantity }}</td>
+
+                            <td>{{ item.price }}</td>
+
+                            <td>{{ item.supplier_name }}</td>
+
+                            <td>{{ item.added_date }}</td>
+
+                            <td>
+
+                                {% if item.is_available %}
+
+                                <span class="badge bg-success">
+                                    Available
+                                </span>
+
+                                {% else %}
+
+                                <span class="badge bg-danger">
+                                    Out Of Stock
+                                </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                        {% empty %}
+
+                        <tr>
+
+                            <td colspan="8" class="text-center text-muted">
+                                No inventory found.
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- PAGINATION -->
+
+            <nav>
+
+                <ul class="pagination">
+
+                    {% if page_obj.has_previous %}
+
+                    <li class="page-item">
+
+                        <a class="page-link"
+                           href="?page={{ page_obj.previous_page_number }}">
+                            Previous
+                        </a>
+
+                    </li>
+
+                    {% endif %}
+
+
+                    <li class="page-item active">
+
+                        <span class="page-link">
+                            {{ page_obj.number }}
+                        </span>
+
+                    </li>
+
+
+                    {% if page_obj.has_next %}
+
+                    <li class="page-item">
+
+                        <a class="page-link"
+                           href="?page={{ page_obj.next_page_number }}">
+                            Next
+                        </a>
+
+                    </li>
+
+                    {% endif %}
+
+                </ul>
+
+            </nav>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ADD INVENTORY MODAL -->
+
+<div  href="{% url 'add_inventory_stock' %}"class="modal fade"
+     id="addInventoryModal"
+     tabindex="-1">
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content">
+
+            <div class="modal-header bg-primary text-white">
+
+                <h5  class="modal-title">
+                    Add Inventory
+                </h5>
+
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"></button>
+
+            </div>
+
+            <form method="POST"
+                  action="{% url 'add_inventory_stock' %}">
+
+                {% csrf_token %}
+
+                <div class="modal-body">
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <label>Category</label>
+                            <input type="text"
+                                   name="category"
+                                   class="form-control">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Item Name</label>
+                            <input type="text"
+                                   name="item_name"
+                                   class="form-control"
+                                   required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Quantity</label>
+                            <input type="number"
+                                   name="quantity"
+                                   class="form-control">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Price</label>
+                            <input type="number"
+                                   step="0.01"
+                                   name="price"
+                                   class="form-control">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Supplier Name</label>
+                            <input type="text"
+                                   name="supplier_name"
+                                   class="form-control">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Received Date</label>
+                            <input type="date"
+                                   name="added_date"
+                                   class="form-control">
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <label>Description</label>
+                            <textarea name="description"
+                                      class="form-control"></textarea>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button class="btn btn-success">
+                        Save Inventory
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -41,42 +41,48 @@ class Purpose(models.Model):
 
     def __str__(self):
         return self.purpose_name
+    
+class Collage(models.Model):
+    collage_name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.collage_name
 
 class NoteSheet(models.Model):
     
     PROCUREMENT_STATUS_CHOICES = (
 
-    ('NORMAL', 'Normal Notesheet'),
+    ('NORMAL', 'Normal'),
 
-    # PURCHASE FLOW
     ('PURCHASE_PENDING_CHAIRMAN', 'Pending Chairman Approval'),
 
     ('QUOTATION_ENTRY', 'Quotation Entry'),
 
     ('QUOTATION_PENDING_CHAIRMAN', 'Quotation Pending Chairman'),
 
-    ('VENDOR_SELECTION', 'Vendor Selection'),
+    ('QUOTATION_REVERTED', 'Quotation Reverted'),
 
-    ('FINAL_PENDING_CHAIRMAN', 'Final Chairman Approval'),
+    ('PO_PENDING', 'PO Pending'),
 
     ('PO_GENERATED', 'PO Generated'),
 
-    ('FINANCE_PENDING', 'Pending Finance Approval'),
-
-    ('PAYMENT_DONE', 'Payment Done'),
-
     ('INVENTORY_ENTRY', 'Inventory Entry'),
+
+    ('FINANCE_REVIEW', 'Finance Review'),
+
+    ('BILL_PENDING_CHAIRMAN', 'Bill Pending Chairman'),
+
+    ('FINAL_FINANCE_APPROVAL', 'Final Finance Approval'),
 
     ('CLOSED', 'Closed'),
 
     ('REJECTED', 'Rejected'),
-
-    ('SENT_BACK', 'Sent Back'),
 )
 
     notesheet_no = models.CharField(max_length=50, unique=True, editable=False)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
+    collage=models.ForeignKey(Collage, on_delete=models.CASCADE, null=True, blank=True)
     purpose = models.ForeignKey(Purpose, on_delete=models.SET_NULL, null=True)
     department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True, blank=True)
     created_by = models.ForeignKey('userapp.User', on_delete=models.CASCADE, related_name='created_notesheets')
@@ -89,13 +95,18 @@ class NoteSheet(models.Model):
     stock_quantity = models.PositiveIntegerField(null=True, blank=True)
     stock_entry_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    po_pdf = models.FileField(
+    upload_to='purchase_orders/',
+    null=True,
+    blank=True
+)
 
     class Meta:
         ordering = ['-created_at']
 
     def save(self, *args, **kwargs):
         if not self.notesheet_no:
-            self.notesheet_no = f"NS-{uuid.uuid4().hex[:8].upper()}"
+            self.notesheet_no = f"REC-{uuid.uuid4().hex[:8].upper()}"
         super().save(*args, **kwargs)
 
     def current_holder(self):
@@ -120,19 +131,6 @@ class NoteSheet(models.Model):
     def __str__(self):
         return f"{self.notesheet_no} - {self.title}"
 
-
-class NoteContent(models.Model):
-    notesheet = models.OneToOneField(NoteSheet, on_delete=models.CASCADE, related_name='content')
-    text_content = models.TextField(blank=True)
-
-
-class NoteDocument(models.Model):
-    notesheet = models.ForeignKey(NoteSheet, on_delete=models.CASCADE, related_name='documents')
-    file = models.FileField(upload_to='notesheets/', validators=[validate_note_attachment])
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['uploaded_at']
 
 
 class NoteRemark(models.Model):
@@ -161,25 +159,6 @@ class NoteRemark(models.Model):
         return f"{self.notesheet.notesheet_no} - {self.action}"
 
 
-class ProcurementQuotation(models.Model):
-    notesheet = models.ForeignKey(NoteSheet, on_delete=models.CASCADE, related_name='quotations')
-    vendor_name = models.CharField(max_length=255)
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
-    quotation_file = models.FileField(upload_to='notesheets/quotations/', validators=[validate_note_attachment], null=True, blank=True)
-    uploaded_by = models.ForeignKey('userapp.User', on_delete=models.CASCADE, related_name='uploaded_quotations')
-    is_l1 = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['amount', 'created_at']
-
-    @property
-    def purchase_order_no(self):
-        return self.notesheet.purchase_order_no
-
-    def __str__(self):
-        return f"{self.notesheet.notesheet_no} - {self.vendor_name}"
-
 
 class QuotationItem(models.Model):
 
@@ -189,6 +168,8 @@ class QuotationItem(models.Model):
         related_name='quotation_items'
     )
 
+    category=models.CharField(max_length=255,null=True,blank=True)
+    
     item_name = models.CharField(max_length=255)
 
     quantity = models.CharField(max_length=255,blank=True)
@@ -198,16 +179,99 @@ class QuotationItem(models.Model):
         decimal_places=2
     )
     total_price= models.CharField(max_length=255,null=True,blank=True)
+    
     vendor_name = models.CharField(max_length=255,null=True,blank=True)
     
-    quote_price = models.CharField(max_length=50,blank=True,null=True)
+    quote_price = models.DecimalField(
+    max_digits=12,
+    decimal_places=2,
+    default=0.00
+)
     
     gst_number = models.CharField(max_length=50,blank=True,null=True)
     
     quotation_file = models.FileField(upload_to='notesheets/quotations/', validators=[validate_note_attachment], null=True, blank=True)
     
-    address=models.CharField(blank=True,null=True)
+    is_l1 = models.BooleanField(
+    default=False
+)
+    address = models.CharField(
+    max_length=500,
+    blank=True,
+    null=True
+)
     
     
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    
+class PurchaseOrder(models.Model):
+    notesheet = models.OneToOneField(
+        NoteSheet,
+        on_delete=models.CASCADE,
+        related_name='purchase_order'
+    )
+
+    po_number = models.CharField(
+        max_length=100,
+        unique=True
+    )
+
+    vendor_name = models.CharField(
+        max_length=255
+    )
+
+    total_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    po_file = models.FileField(
+        upload_to='purchase_orders/'
+    )
+
+    created_by = models.ForeignKey(
+        'userapp.User',
+        on_delete=models.CASCADE
+    )
+    
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+
+        return self.po_numbers   
+
+class InventoryItem(models.Model):
+
+    category = models.CharField(max_length=255,blank=True, null=True)
+
+    item_name = models.CharField(max_length=255)
+    quantity = models.PositiveIntegerField(default=0)
+
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.00
+    )
+
+    description = models.TextField(blank=True, null=True)
+
+    supplier_name = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    added_date = models.DateField(null=True,blank=True)
+
+    is_available = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.item_name
+    
+    
+    
+    
 

@@ -21,7 +21,7 @@ from reportlab.pdfgen import canvas
 from userapp.models import User
 from userapp.views import get_session_user
 
-from .models import Department, NoteContent, NoteDocument, NoteRemark, NoteSheet, ProcurementQuotation,Purpose
+from .models import Department, NoteRemark, NoteSheet,Purpose
 from .models import *
 
 PROCUREMENT_STATUS_LABELS = dict(NoteSheet.PROCUREMENT_STATUS_CHOICES)
@@ -61,6 +61,10 @@ def is_hod_user(user):
     role_key = get_role_key(user)
     return "hod" in role_key
 
+def is_purchase_user(user):
+    role_key = get_role_key(user)
+    return "purhase" in role_key
+
 
 def get_accessible_notes_queryset(user):
     return (
@@ -71,7 +75,7 @@ def get_accessible_notes_queryset(user):
             | Q(remarks__forwarded_to=user)
         )
         .select_related('department', 'created_by', 'forwarded_to')
-        .prefetch_related('documents', 'remarks__created_by', 'remarks__forwarded_to', 'quotations__uploaded_by')
+        .prefetch_related( 'remarks__created_by', 'remarks__forwarded_to', )
         .distinct()
     )
 
@@ -118,6 +122,10 @@ def get_chairman_user():
 
 def get_finance_user():
     return find_workflow_user("finance")
+
+
+def get_purchase_user():
+    return find_workflow_user("purchase")
 
 
 def add_workflow_remark(
@@ -187,8 +195,6 @@ def build_timeline(note):
     return timeline_events
 
 
-
-
 def create_notesheet(request):
     user = get_session_user(request)
     if not user:
@@ -248,9 +254,17 @@ def edit_notesheet(request, pk):
     user = get_user(request)
 
     if not user:
+
         return redirect('login')
 
-    note = get_note_for_user(user, pk)
+    note = get_note_for_user(
+        user,
+        pk
+    )
+
+    # =====================================
+    # POST ACTIONS
+    # =====================================
 
     if request.method == "POST":
 
@@ -260,10 +274,18 @@ def edit_notesheet(request, pk):
             user
         )
 
+    # =====================================
+    # PAGE CONTEXT
+    # =====================================
+
     context = build_note_context(
         note,
         user
     )
+
+    # =====================================
+    # RENDER
+    # =====================================
 
     return render(
         request,
@@ -273,71 +295,40 @@ def edit_notesheet(request, pk):
 
 def handle_post(request, note, user):
 
-    if note.is_closed_for_workflow():
-
-        messages.error(
-            request,
-            "Workflow closed."
-        )
-
-        return redirect(
-            'edit_notesheet',
-            pk=note.id
-        )
-
-    if not note.can_user_edit(user):
-
-        messages.error(
-            request,
-            "File is currently with another officer."
-        )
-
-        return redirect(
-            'edit_notesheet',
-            pk=note.id
-        )
-
     action_type = request.POST.get(
         'action_type'
     )
 
-    # =========================================
+    # =====================================
     # SAVE NOTE
-    # =========================================
+    # =====================================
 
     if action_type == 'save':
-
         save_note_content(
-            request,
-            note,
-            user
-        )
-
+        request,
+        note,
+        user
+    )
         return redirect(
-            'edit_notesheet',
-            pk=note.id
-        )
+        'edit_notesheet',
+        pk=note.id
+    )
 
-    # =========================================
-    # NORMAL FORWARD
-    # =========================================
+    # =====================================
+    # FORWARD FILE
+    # =====================================
 
     elif action_type == 'send':
 
-        forward_note(
+        return forward_note(
             request,
             note,
             user
         )
 
-        return redirect(
-            'edit_notesheet',
-            pk=note.id
-        )
-
-    # =========================================
-    # CHAIRMAN PURCHASE APPROVAL
-    # =========================================
+    # =====================================
+    # CHAIRMAN PURCHASE APPROVE
+    # =====================================
 
     elif action_type == 'chairman_purchase_approve':
 
@@ -346,9 +337,9 @@ def handle_post(request, note, user):
             note.id
         )
 
-    # =========================================
-    # QUOTATION APPROVAL
-    # =========================================
+    # =====================================
+    # CHAIRMAN QUOTATION APPROVE
+    # =====================================
 
     elif action_type == 'chairman_quotation_approve':
 
@@ -357,47 +348,87 @@ def handle_post(request, note, user):
             note.id
         )
 
-    # =========================================
-    # FINAL APPROVAL
-    # =========================================
+    # =====================================
+    # CHAIRMAN QUOTATION REVERT
+    # =====================================
 
-    elif action_type == 'chairman_final_approve':
+    elif action_type == 'chairman_quotation_revert':
 
-        return chairman_final_approve(
+        return chairman_quotation_revert(
             request,
             note.id
         )
 
-    # =========================================
-    # FINANCE APPROVAL
-    # =========================================
+    # =====================================
+    # GENERATE PO
+    # =====================================
 
-    elif action_type == 'finance_payment_approve':
+    elif action_type == 'generate_po':
 
-        return finance_payment_approve(
+        return generate_po(
             request,
             note.id
         )
 
+    # =====================================
+    # INVENTORY ENTRY
+    # =====================================
+
+    elif action_type == 'inventory_received':
+
+        return inventory_received(
+            request,
+            note.id
+        )
+        
+    # =========================================
+# FINANCE SEND TO CHAIRMAN
+# =========================================
+
+    elif action_type == 'finance_send_to_chairman':
+
+        return finance_send_to_chairman(
+        request,
+        note.id
+    )
+
+
+# =========================================
+# CHAIRMAN BILLING APPROVE
+# =========================================
+
+    elif action_type == 'chairman_billing_approve':
+
+        return chairman_billing_approve(
+        request,
+        note.id
+    )
+
+
+# =========================================
+# FINANCE FINAL APPROVE
+# =========================================
+
+    elif action_type == 'finance_final_approve':
+
+        return finance_final_approve(
+        request,
+        note.id
+    )
+
+    return redirect(
+    'edit_notesheet',
+    pk=note.id
+)
    
     # =========================================
     # INVALID ACTION
     # =========================================
 
-    messages.error(
-        request,
-        "Invalid action."
-    )
-
-    return redirect(
-        'edit_notesheet',
-        pk=note.id
-    )
 
 # =========================================================
 # SAVE NOTE CONTENT
 # =========================================================
-
 def save_note_content(request, note, user):
 
     text = request.POST.get(
@@ -416,11 +447,7 @@ def save_note_content(request, note, user):
             "Write note or upload attachment."
         )
 
-        return
-
-    # ==========================================
-    # SAVE REMARK
-    # ==========================================
+        return False
 
     NoteRemark.objects.create(
 
@@ -442,6 +469,7 @@ def save_note_content(request, note, user):
         "Note added successfully."
     )
 
+    return True
 # =========================================================
 # FORWARD FILE
 # =========================================================
@@ -561,31 +589,30 @@ def forward_note(request, note, user):
     # =====================================================
 
     for old in current_remarks:
-
         new_remark = NoteRemark.objects.create(
 
-            notesheet=note,
+        notesheet=note,
 
-            created_by=old.created_by,
+        created_by=old.created_by,
 
-            action=old.action,
+        action=old.action,
 
-            remark_text=old.remark_text,
+        remark_text=old.remark_text,
 
-            attachment=old.attachment,
+        attachment=old.attachment,
 
-            forwarded_to=old.forwarded_to,
+        forwarded_to=forwarded_user,
 
-            visible_to=forwarded_user
-        )
+        visible_to=forwarded_user
+    )
 
-        # Preserve original timestamp
+    # Preserve original timestamp
 
-        new_remark.created_at = old.created_at
+    new_remark.created_at = old.created_at
 
-        new_remark.save(
-            update_fields=['created_at']
-        )
+    new_remark.save(
+        update_fields=['created_at']
+    )
 
     # =====================================================
     # MOVE FILE
@@ -598,28 +625,6 @@ def forward_note(request, note, user):
             'forwarded_to',
             'procurement_status'
         ]
-    )
-
-    # =====================================================
-    # WORKFLOW REMARK
-    # =====================================================
-
-    NoteRemark.objects.create(
-
-        notesheet=note,
-
-        created_by=user,
-
-        forwarded_to=forwarded_user,
-
-        action='FORWARDED',
-
-        remark_text=(
-            f"File forwarded to "
-            f"{forwarded_user.officer_name}"
-        ),
-
-        visible_to=forwarded_user
     )
 
     # =====================================================
@@ -643,6 +648,7 @@ def forward_note(request, note, user):
         pk=note.id
     )
 
+
 def build_note_context(note, user):
 
     remarks = NoteRemark.objects.filter(
@@ -656,12 +662,25 @@ def build_note_context(note, user):
 
     ).order_by('created_at')
 
+    quotations = QuotationItem.objects.filter(
+        notesheet=note
+    )
+
+    purchase_order = PurchaseOrder.objects.filter(
+        notesheet=note
+    ).first()
+
     return {
 
         'note': note,
 
         'remarks': remarks,
-            'user': user,
+
+        'user': user,
+
+        'quotations': quotations,
+
+        'purchase_order': purchase_order,
 
         'can_edit': note.can_user_edit(user),
 
@@ -765,8 +784,6 @@ def build_notesheet_summary(note):
     }
 
 
-
-
 def open_sent_file(request, pk):
     user = get_session_user(request)
     if not user:
@@ -801,18 +818,6 @@ def notesheet_search(request):
         'query': query,
         'result': result,
     })
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -865,15 +870,7 @@ def movement_history(request, pk):
         context
     )
 
-
-
-
-
-
-
-
-
-
+# PURCHASE_FLOW STARTING
 def chairman_purchase_approve(request, pk):
 
     user = get_user(request)
@@ -907,16 +904,60 @@ def chairman_purchase_approve(request, pk):
             pk=pk
         )
 
-    note.forwarded_to = note.created_by
+    purchase_user = get_purchase_user()
 
-    note.procurement_status = 'QUOTATION_ENTRY'
+    # =========================================
+    # COPY FULL TRAIL TO PURCHASE OFFICER
+    # =========================================
 
-    note.save(
-        update_fields=[
-            'forwarded_to',
-            'procurement_status'
-        ]
-    )
+    current_remarks = NoteRemark.objects.filter(
+
+        notesheet=note,
+
+        visible_to=user
+
+    ).order_by('created_at')
+
+    # remove old snapshot
+
+    NoteRemark.objects.filter(
+
+        notesheet=note,
+
+        visible_to=purchase_user
+
+    ).delete()
+
+    # recreate full trail
+
+    for old in current_remarks:
+
+        new_remark = NoteRemark.objects.create(
+
+            notesheet=note,
+
+            created_by=old.created_by,
+
+            action=old.action,
+
+            remark_text=old.remark_text,
+
+            attachment=old.attachment,
+
+            forwarded_to=purchase_user,
+
+            visible_to=purchase_user
+        )
+
+        new_remark.created_at = old.created_at
+
+        new_remark.save(
+            update_fields=['created_at']
+        )
+
+    # =========================================
+    # APPROVAL ENTRY
+    # =========================================
 
     NoteRemark.objects.create(
 
@@ -926,9 +967,26 @@ def chairman_purchase_approve(request, pk):
 
         created_by=user,
 
-        forwarded_to=note.created_by,
+        forwarded_to=purchase_user,
 
-        remark_text='Purchase request approved by Chairman.'
+        remark_text='Purchase request approved by Chairman.',
+
+        visible_to=purchase_user
+    )
+
+    # =========================================
+    # UPDATE NOTE
+    # =========================================
+
+    note.forwarded_to = purchase_user
+
+    note.procurement_status = 'QUOTATION_ENTRY'
+
+    note.save(
+        update_fields=[
+            'forwarded_to',
+            'procurement_status'
+        ]
     )
 
     messages.success(
@@ -942,10 +1000,29 @@ def chairman_purchase_approve(request, pk):
     )
 
 
-# =====================================================
-# ADD QUOTATION
-# =====================================================
+def quotation_details(request, pk):
 
+    user = get_user(request)
+
+    note = get_object_or_404(
+        NoteSheet,
+        id=pk
+    )
+
+    quotations = QuotationItem.objects.filter(
+        notesheet=note
+    )
+
+    return render(
+        request,
+        'services/quotation_details.html',
+        {
+            'note': note,
+            'quotations': quotations
+        }
+    )
+    
+    
 def add_quotation(request, pk):
 
     user = get_user(request)
@@ -962,82 +1039,75 @@ def add_quotation(request, pk):
             pk=pk
         )
 
-
-    item_name = request.POST.get(
-        'item_name'
-    )
-
-    quantity = request.POST.get(
-        'quantity'
-    )
-
-    unit_price = request.POST.get(
-        'unit_price'
-    )
-
-    quotation_file = request.FILES.get(
-        'quotation_file')
-    
-    vendor_name=request.POST.get(
-            'vendor_name'
-        ),
-
-    gst_number=request.POST.get(
-            'gst_number'
-        ),
-
-    quote_price=request.POST.get(
-            'quote_price'
-        ),
-    address=   quote_price=request.POST.get(
-            'quote_price'
-        ),
-
     QuotationItem.objects.create(
 
         notesheet=note,
 
-        item_name=item_name,
+        vendor_name=request.POST.get(
+            'vendor_name'
+        ),
 
-        quantity=quantity,
+        gst_number=request.POST.get(
+            'gst_number'
+        ),
 
-        unit_price=unit_price,
-        
-        quotation_file=quotation_file,
-        vendor_name=vendor_name,
-        gst_number=gst_number,
-        quote_price=quote_price,
-        address=address,
-        
-        
+        item_name=request.POST.get(
+            'item_name'
+        ),
+
+        quantity=request.POST.get(
+            'quantity'
+        ),
+
+        unit_price=request.POST.get(
+            'unit_price'
+        ),
+
+        quote_price=request.POST.get(
+            'quote_price'
+        ),
+
+        address=request.POST.get(
+            'address'
+        ),
+
+        quotation_file=request.FILES.get(
+            'quotation_file'
+        )
     )
+    
+    all_quotes = QuotationItem.objects.filter(
+    notesheet=note
+)
 
-    chairman = get_chairman_user()
+    all_quotes.update(is_l1=False)
 
-    note.forwarded_to = chairman
+    lowest = all_quotes.order_by('quote_price').first()
 
-    note.procurement_status = (
-        'QUOTATION_PENDING_CHAIRMAN'
-    )
+    if lowest:
 
-    note.save()
+        lowest.is_l1 = True
+
+        lowest.save(update_fields=['is_l1'])
 
     NoteRemark.objects.create(
 
         notesheet=note,
 
-        action='FORWARDED',
+        action='COMMENT',
 
         created_by=user,
+        
 
-        forwarded_to=chairman,
+        forwarded_to=user,
 
-        remark_text='Quotation uploaded.'
+        remark_text='Vendor quotation added.'
     )
+    
 
     messages.success(
         request,
-        "Quotation uploaded."
+        "Quotation added successfully."
     )
 
     return redirect(
@@ -1049,53 +1119,7 @@ def add_quotation(request, pk):
 # =====================================================
 # CHAIRMAN QUOTATION APPROVE
 # =====================================================
-
-def chairman_quotation_approve(request, pk):
-
-    user = get_user(request)
-
-    note = get_object_or_404(
-        NoteSheet,
-        id=pk
-    )
-
-    note.forwarded_to = note.created_by
-
-    note.procurement_status = (
-        'VENDOR_SELECTION'
-    )
-
-    note.save()
-
-    NoteRemark.objects.create(
-
-        notesheet=note,
-
-        action='APPROVED',
-
-        created_by=user,
-
-        forwarded_to=note.created_by,
-
-        remark_text='Quotation approved.'
-    )
-
-    messages.success(
-        request,
-        "Quotation approved."
-    )
-
-    return redirect(
-        'edit_notesheet',
-        pk=pk
-    )
-
-
-# =====================================================
-# ADD VENDOR
-# =====================================================
-
-def add_vendor(request, pk):
+def send_quotation_to_chairman(request, pk):
 
     user = get_user(request)
 
@@ -1103,15 +1127,12 @@ def add_vendor(request, pk):
         NoteSheet,
         id=pk
     )
-
 
     chairman = get_chairman_user()
 
     note.forwarded_to = chairman
 
-    note.procurement_status = (
-        'FINAL_PENDING_CHAIRMAN'
-    )
+    note.procurement_status = 'QUOTATION_PENDING_CHAIRMAN'
 
     note.save()
 
@@ -1125,12 +1146,12 @@ def add_vendor(request, pk):
 
         forwarded_to=chairman,
 
-        remark_text='Vendor finalized.'
+        remark_text='Quotation submitted to chairman.'
     )
 
     messages.success(
         request,
-        "Vendor details saved."
+        "Quotation sent."
     )
 
     return redirect(
@@ -1138,12 +1159,32 @@ def add_vendor(request, pk):
         pk=pk
     )
 
+def chairman_quotation_approve(request, pk):
 
-# =====================================================
-# FINAL APPROVE
-# =====================================================
+    user = get_user(request)
 
-def chairman_final_approve(request, pk):
+    note = get_object_or_404(NoteSheet, id=pk)
+
+    purchase_user = get_purchase_user()
+
+    note.forwarded_to = purchase_user
+
+    note.procurement_status = 'PO_PENDING'
+
+    note.save()
+
+    messages.success(
+        request,
+        "Quotation approved."
+    )
+
+    return redirect(
+        'edit_notesheet',
+        pk=pk
+    )
+    
+    
+def chairman_quotation_revert(request, pk):
 
     user = get_user(request)
 
@@ -1152,13 +1193,260 @@ def chairman_final_approve(request, pk):
         id=pk
     )
 
-    finance_user = get_finance_user()
+    purchase_user = get_purchase_user()
 
-    note.forwarded_to = finance_user
+    note.forwarded_to = purchase_user
 
     note.procurement_status = (
-        'FINANCE_PENDING'
+        'QUOTATION_REVERT'
     )
+
+    note.save()
+
+    NoteRemark.objects.create(
+
+        notesheet=note,
+
+        action='REVERT',
+
+        created_by=user,
+
+        forwarded_to=purchase_user,
+
+        remark_text='Quotation reverted by chairman.'
+    )
+
+    messages.warning(
+        request,
+        "Quotation reverted."
+    )
+
+    return redirect(
+        'edit_notesheet',
+        pk=pk
+    )
+def generate_po(request, pk):
+
+    user = get_user(request)
+
+    note = get_object_or_404(
+        NoteSheet,
+        id=pk
+    )
+
+    vendor = QuotationItem.objects.filter(
+
+    notesheet=note,
+
+    is_l1=True
+
+    ).first()
+
+    if not vendor:
+
+        messages.error(
+            request,
+            "No vendor quotation found."
+        )
+
+        return redirect(
+            'edit_notesheet',
+            pk=pk
+        )
+
+    # ====================================
+    # PURCHASE USER
+    # ====================================
+
+    purchase_user = get_purchase_user()
+
+    # ====================================
+    # PO NUMBER
+    # ====================================
+
+    po_number = (
+        f"PO-{uuid.uuid4().hex[:8].upper()}"
+    )
+
+    # ====================================
+    # CREATE PDF
+    # ====================================
+
+    buffer = io.BytesIO()
+
+    p = canvas.Canvas(buffer)
+
+    p.setFont(
+        "Helvetica-Bold",
+        16
+    )
+
+    p.drawString(
+        200,
+        800,
+        "PURCHASE ORDER"
+    )
+    
+    p.setFont(
+    "Helvetica",
+    12
+)
+    p.drawString(
+    100,
+    770,
+        f"Notesheet No: {note.notesheet_no}"
+)
+
+    p.setFont(
+        "Helvetica",
+        12
+    )
+
+    p.drawString(
+        100,
+        750,
+        f"PO No: {po_number}"
+    )
+
+    p.drawString(
+        100,
+        720,
+        f"Vendor: {vendor.vendor_name}"
+    )
+
+    p.drawString(
+        100,
+        690,
+        f"Item: {vendor.item_name}"
+    )
+
+    p.drawString(
+        100,
+        660,
+        f"Quantity: {vendor.quantity}"
+    )
+
+    p.drawString(
+        100,
+        630,
+        f"Amount: {vendor.quote_price}"
+    )
+
+    p.save()
+
+    pdf = buffer.getvalue()
+
+    buffer.close()
+
+    # ====================================
+    # SAVE PDF
+    # ====================================
+
+    note.po_pdf.save(
+
+        f"{po_number}.pdf",
+
+        ContentFile(pdf),
+
+        save=False
+    )
+
+    # ====================================
+    # UPDATE NOTE
+    # ====================================
+
+    note.purchase_order_no = po_number
+
+    note.procurement_status = (
+        'INVENTORY_PENDING'
+    )
+
+    note.forwarded_to = purchase_user
+
+    note.save()
+
+    # ====================================
+    # SAVE REMARK
+    # ====================================
+
+    NoteRemark.objects.create(
+
+        notesheet=note,
+
+        created_by=user,
+
+        forwarded_to=purchase_user,
+
+        action='PO_GENERATED',
+
+        remark_text=(
+            f"Purchase Order Generated : "
+            f"{po_number}"
+        ),
+
+        visible_to=purchase_user
+    )
+
+    # ====================================
+    # SUCCESS
+    # ====================================
+
+    messages.success(
+        request,
+        "PO Generated Successfully."
+    )
+
+    return redirect(
+        'edit_notesheet',
+        pk=pk
+    )
+ 
+def inventory_received(request, pk):
+
+    user = get_user(request)
+
+    note = get_object_or_404(
+        NoteSheet,
+        id=pk
+    )
+
+
+    InventoryItem.objects.create(
+
+        category=request.POST.get(
+            'category'
+        ),
+
+        item_name=request.POST.get(
+            'item_name'
+        ),
+
+        quantity=request.POST.get(
+            'quantity'
+        ),
+
+        price=request.POST.get(
+            'price'
+        ) or 0,
+
+        supplier_name=request.POST.get(
+            'supplier_name'
+        ),
+        
+        added_date=request.POST.get(
+    'added_date'
+),
+
+        description=request.POST.get(
+            'description'
+        )
+    )
+
+    finance_user = get_finance_user()
+
+    note.procurement_status = 'FINANCE_PENDING'
+
+    note.forwarded_to = finance_user
 
     note.save()
 
@@ -1172,25 +1460,20 @@ def chairman_final_approve(request, pk):
 
         forwarded_to=finance_user,
 
-        remark_text='Final approval completed.'
+        remark_text='Inventory entry completed and sent to Finance.'
     )
 
     messages.success(
         request,
-        "Final approval completed."
+        "Inventory saved successfully."
     )
 
     return redirect(
         'edit_notesheet',
         pk=pk
-    )
-
-
-# =====================================================
-# FINANCE APPROVE
-# =====================================================
-
-def finance_payment_approve(request, pk):
+    )       
+    
+def finance_send_to_chairman(request, pk):
 
     user = get_user(request)
 
@@ -1199,11 +1482,238 @@ def finance_payment_approve(request, pk):
         id=pk
     )
 
+    chairman = get_chairman_user()
+
+    # =====================================
+    # COPY ALL REMARKS TO CHAIRMAN
+    # =====================================
+
+    current_remarks = NoteRemark.objects.filter(
+
+        notesheet=note,
+
+        visible_to=user
+
+    ).order_by('created_at')
+
+    # remove old copy
+
+    NoteRemark.objects.filter(
+
+        notesheet=note,
+
+        visible_to=chairman
+
+    ).delete()
+
+    # recreate snapshot
+
+    for old in current_remarks:
+
+        new_remark = NoteRemark.objects.create(
+
+            notesheet=note,
+
+            created_by=old.created_by,
+
+            action=old.action,
+
+            remark_text=old.remark_text,
+
+            attachment=old.attachment,
+
+            forwarded_to=old.forwarded_to,
+
+            visible_to=chairman
+        )
+
+        new_remark.created_at = old.created_at
+
+        new_remark.save(
+            update_fields=['created_at']
+        )
+
+    # =====================================
+    # UPDATE NOTE
+    # =====================================
+
+    note.forwarded_to = chairman
+
     note.procurement_status = (
-        'INVENTORY_ENTRY'
+        'BILL_PENDING_CHAIRMAN'
     )
 
-    note.forwarded_to = note.created_by
+    note.save()
+
+    # =====================================
+    # WORKFLOW REMARK
+    # =====================================
+
+    NoteRemark.objects.create(
+
+        notesheet=note,
+
+        created_by=user,
+
+        forwarded_to=chairman,
+
+        action='FORWARDED',
+
+        remark_text=(
+            'Finance sent billing '
+            'to Chairman for approval.'
+        ),
+
+        visible_to=chairman
+    )
+
+    messages.success(
+        request,
+        "Bill sent to chairman."
+    )
+
+    return redirect(
+        'edit_notesheet',
+        pk=pk
+    )
+
+
+def chairman_billing_approve(request, pk):
+
+    user = get_user(request)
+
+    note = get_object_or_404(
+        NoteSheet,
+        id=pk
+    )
+
+    # =====================================
+    # ONLY CHAIRMAN
+    # =====================================
+
+    if not is_chairman_user(user):
+
+        messages.error(
+            request,
+            "Only chairman can approve billing."
+        )
+
+        return redirect(
+            'edit_notesheet',
+            pk=pk
+        )
+
+    # =====================================
+    # FINANCE USER
+    # =====================================
+
+    finance_user = get_finance_user()
+
+    # =====================================
+    # COPY FILE TO FINANCE
+    # =====================================
+
+    current_remarks = NoteRemark.objects.filter(
+
+        notesheet=note,
+
+        visible_to=user
+
+    ).order_by('created_at')
+
+    # remove old finance copy
+
+    NoteRemark.objects.filter(
+
+        notesheet=note,
+
+        visible_to=finance_user
+
+    ).delete()
+
+    # recreate snapshot
+
+    for old in current_remarks:
+
+        new_remark = NoteRemark.objects.create(
+
+            notesheet=note,
+
+            created_by=old.created_by,
+
+            action=old.action,
+
+            remark_text=old.remark_text,
+
+            attachment=old.attachment,
+
+            forwarded_to=old.forwarded_to,
+
+            visible_to=finance_user
+        )
+
+        new_remark.created_at = old.created_at
+
+        new_remark.save(
+            update_fields=['created_at']
+        )
+
+    # =====================================
+    # UPDATE NOTE
+    # =====================================
+
+    note.forwarded_to = finance_user
+
+    note.procurement_status = (
+        'FINAL_FINANCE_APPROVAL'
+    )
+
+    note.save()
+
+    # =====================================
+    # WORKFLOW REMARK
+    # =====================================
+
+    NoteRemark.objects.create(
+
+        notesheet=note,
+
+        created_by=user,
+
+        forwarded_to=finance_user,
+
+        action='APPROVED',
+
+        remark_text=(
+            'Chairman approved billing.'
+        ),
+
+        visible_to=finance_user
+    )
+
+    messages.success(
+        request,
+        "Billing approved successfully."
+    )
+
+    return redirect(
+        'edit_notesheet',
+        pk=pk
+    )
+
+
+def finance_final_approve(request, pk):
+
+    user = get_user(request)
+
+    note = get_object_or_404(
+        NoteSheet,
+        id=pk
+    )
+
+    note.procurement_status = 'CLOSED'
+
+    note.is_closed = True
 
     note.save()
 
@@ -1215,14 +1725,12 @@ def finance_payment_approve(request, pk):
 
         created_by=user,
 
-        forwarded_to=note.created_by,
-
-        remark_text='Finance approved payment.'
+        remark_text='Workflow closed by Finance.'
     )
 
     messages.success(
         request,
-        "Finance approved."
+        "Workflow closed successfully."
     )
 
     return redirect(
@@ -1231,23 +1739,13 @@ def finance_payment_approve(request, pk):
     )
 
 
-# =====================================================
-# CLOSE INVENTORY
-# =====================================================
-
-
-
-
 def get_procurement_actions(note, user):
 
     actions = []
 
     status = note.procurement_status
 
-    # =========================================
-    # CHAIRMAN PURCHASE APPROVAL
-    # =========================================
-
+    # Chairman Purchase Approval
     if (
         is_chairman_user(user)
         and status == 'PURCHASE_PENDING_CHAIRMAN'
@@ -1262,10 +1760,7 @@ def get_procurement_actions(note, user):
             'class': 'btn-success'
         })
 
-    # =========================================
-    # CHAIRMAN QUOTATION APPROVAL
-    # =========================================
-
+    # Chairman Quotation Approval
     elif (
         is_chairman_user(user)
         and status == 'QUOTATION_PENDING_CHAIRMAN'
@@ -1275,64 +1770,182 @@ def get_procurement_actions(note, user):
 
             'key': 'chairman_quotation_approve',
 
-            'label': 'Approve Quotation',
+            'label': 'Approve Quotations',
 
             'class': 'btn-primary'
         })
 
-    # =========================================
-    # FINAL APPROVAL
-    # =========================================
-
+    # Purchase Officer Generate PO
     elif (
-        is_chairman_user(user)
-        and status == 'FINAL_PENDING_CHAIRMAN'
+        is_purchase_user(user)
+        and status == 'PO_PENDING'
     ):
 
         actions.append({
 
-            'key': 'chairman_final_approve',
+            'key': 'generate_po',
 
-            'label': 'Final Approve & Generate PO',
+            'label': 'Generate PO PDF',
 
             'class': 'btn-dark'
         })
 
-    # =========================================
-    # FINANCE APPROVAL
-    # =========================================
-
+    # Inventory Entry
     elif (
-        is_finance_user(user)
-        and status == 'FINANCE_PENDING'
+        is_purchase_user(user)
+        and status == 'PO_GENERATED'
     ):
 
         actions.append({
 
-            'key': 'finance_payment_approve',
+            'key': 'inventory_received',
 
-            'label': 'Approve Payment',
+            'label': 'Register In Inventory',
 
             'class': 'btn-warning'
         })
+    elif (is_purchase_user(user)
+    and status == 'INVENTORY_PENDING'):
+        actions.append({
 
-    # =========================================
-    # CLOSE INVENTORY
-    # =========================================
+        'key': 'inventory_received',
 
+        'label': 'Material Received / Inventory Entry',
+
+        'class': 'btn-success'
+    })
+
+    # Finance Review
     elif (
-        is_creator_admin(user, note)
-        and status == 'INVENTORY_ENTRY'
+        is_finance_user(user)
+        and status == 'FINANCE_REVIEW'
     ):
 
         actions.append({
 
-            'key': 'close_inventory',
+            'key': 'finance_send_to_chairman',
 
-            'label': 'Close Inventory',
+            'label': 'Send Bill To Chairman',
+
+            'class': 'btn-info'
+        })
+
+    # Chairman Bill Approval
+    elif (
+        is_chairman_user(user)
+        and status == 'BILL_PENDING_CHAIRMAN'
+    ):
+
+        actions.append({
+
+            'key': 'chairman_bill_approve',
+
+            'label': 'Approve Billing',
+
+            'class': 'btn-success'
+        })
+
+    # Final Finance Approval
+    elif (
+        is_finance_user(user)
+        and status == 'FINAL_FINANCE_APPROVAL'
+    ):
+
+        actions.append({
+
+            'key': 'finance_final_approve',
+
+            'label': 'Final Finance Approval',
 
             'class': 'btn-danger'
         })
 
     return actions
 
+
+
+
+
+from django.shortcuts import render
+from django.db.models import Count, Sum
+from .models import NoteSheet, QuotationItem
+
+
+# =========================================
+# DASHBOARD
+# =========================================
+
+
+def dashboard_view(request):
+
+    # =========================================
+    # TOTAL NOTESHEETS
+    # =========================================
+
+    total_notesheets = NoteSheet.objects.count()
+
+    # =========================================
+    # TOTAL PURCHASE NOTESHEETS
+    # =========================================
+
+    total_purchase_notesheets = (
+        NoteSheet.objects.filter(
+            purpose__purpose_name__iexact='purchase'
+        ).count()
+    )
+
+    # =========================================
+    # TOTAL CLOSED PURCHASE NOTESHEETS
+    # =========================================
+
+    total_closed_purchase = (
+        NoteSheet.objects.filter(
+            procurement_status='CLOSED'
+        ).count()
+    )
+
+    # =========================================
+    # TOTAL SPEND
+    # ONLY CLOSED + L1 QUOTATIONS
+    # =========================================
+
+    total_spend = (
+        QuotationItem.objects.filter(
+            notesheet__procurement_status='CLOSED',
+            is_l1=True
+        ).aggregate(
+            total=Sum('quote_price')
+        )['total'] or 0
+    )
+
+    # =========================================
+    # OFFICER WISE NOTESHEETS
+    # =========================================
+
+    officer_notesheets = (
+        NoteSheet.objects.select_related(
+            'created_by',
+            'purpose'
+        )
+        .all()
+        .order_by('-id')
+    )
+
+    context = {
+
+        'total_notesheets': total_notesheets,
+
+        'total_purchase_notesheets': total_purchase_notesheets,
+
+        'total_closed_purchase': total_closed_purchase,
+
+        'total_spend': total_spend,
+
+        'officer_notesheets': officer_notesheets
+    }
+
+    return render(
+        request,
+        'services/dashboard_view.html',
+        context
+    )

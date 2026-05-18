@@ -9,10 +9,7 @@ from systemapp.models import (
     Department,
     Purpose,
     NoteSheet,
-    NoteContent,
-    NoteDocument,
     NoteRemark,
-    ProcurementQuotation,
     QuotationItem,
 )
 
@@ -94,13 +91,6 @@ class PurposeAdmin(admin.ModelAdmin):
 # NOTE DOCUMENT INLINE
 # =========================================================
 
-class NoteDocumentInline(admin.TabularInline):
-
-    model = NoteDocument
-
-    extra = 1
-
-
 # =========================================================
 # QUOTATION ITEM INLINE
 # =========================================================
@@ -155,42 +145,15 @@ class NoteSheetAdmin(admin.ModelAdmin):
         'notesheet_no',
         'purchase_order_no',
     )
-
-    inlines = [
-        NoteDocumentInline,
-        QuotationItemInline,
-    ]
-
-
 # =========================================================
 # NOTE CONTENT ADMIN
 # =========================================================
 
-@admin.register(NoteContent)
-class NoteContentAdmin(admin.ModelAdmin):
-
-    list_display = (
-        'notesheet',
-    )
 
 
 # =========================================================
 # NOTE DOCUMENT ADMIN
 # =========================================================
-
-@admin.register(NoteDocument)
-class NoteDocumentAdmin(admin.ModelAdmin):
-
-    list_display = (
-        'notesheet',
-        'uploaded_at',
-    )
-
-    search_fields = (
-        'notesheet__notesheet_no',
-    )
-
-
 # =========================================================
 # NOTE REMARK ADMIN
 # =========================================================
@@ -220,30 +183,6 @@ class NoteRemarkAdmin(admin.ModelAdmin):
 # =========================================================
 # PROCUREMENT QUOTATION ADMIN
 # =========================================================
-
-@admin.register(ProcurementQuotation)
-class ProcurementQuotationAdmin(admin.ModelAdmin):
-
-    list_display = (
-        'notesheet',
-        'vendor_name',
-        'amount',
-        'is_l1',
-        'uploaded_by',
-        'created_at',
-    )
-
-    search_fields = (
-        'vendor_name',
-        'notesheet__notesheet_no',
-    )
-
-    list_filter = (
-        'is_l1',
-        'created_at',
-    )
-
-
 # =========================================================
 # QUOTATION ITEM ADMIN
 # =========================================================

@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'NSMS.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'notesheetmanagment',
+        'NAME': 'radharamanclg',
         'USER': 'postgres',
         'PASSWORD': '123456789',   # apna password
         'HOST': 'localhost',
