@@ -20,21 +20,35 @@
 
         </div>
 
-        <form method="POST">
+        <form method="POST"
+      enctype="multipart/form-data">
 
-            {% csrf_token %}
+    {% csrf_token %}
 
-            <button
-                type="submit"
-                name="action_type"
-                value="finance_send_to_chairman"
-                class="btn btn-dark"
-            >
-                Send To Chairman
-            </button>
+    <div class="mb-3">
 
-        </form>
+        <label class="form-label fw-bold">
 
+            Upload Invoice / Bill
+
+        </label>
+
+        <input type="file"
+               name="finance_attachment"
+               class="form-control">
+
+    </div>
+
+    <button
+        type="submit"
+        name="action_type"
+        value="finance_send_to_chairman"
+        class="btn btn-dark"
+    >
+        Send To Chairman
+    </button>
+
+</form>
     </div>
 
 </div>

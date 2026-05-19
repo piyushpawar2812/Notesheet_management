@@ -1481,6 +1481,9 @@ def finance_send_to_chairman(request, pk):
         NoteSheet,
         id=pk
     )
+    attachment = request.FILES.get(
+        'finance_attachment'
+    )
 
     chairman = get_chairman_user()
 
@@ -1558,6 +1561,8 @@ def finance_send_to_chairman(request, pk):
         forwarded_to=chairman,
 
         action='FORWARDED',
+        
+        attachment=attachment,
 
         remark_text=(
             'Finance sent billing '
