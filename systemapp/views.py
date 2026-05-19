@@ -293,8 +293,27 @@ def edit_notesheet(request, pk):
         context
     )
 
+
 def handle_post(request, note, user):
 
+    # =====================================
+    # WORKFLOW CLOSED CHECK
+    # =====================================
+
+    if note.procurement_status == "CLOSED":
+        messages.error(
+            request,
+            "Workflow closed."
+        )
+
+        return redirect(
+            'edit_notesheet',
+            pk=note.id
+        )
+
+    # =====================================
+    # ACTION TYPE
+    # =====================================
     action_type = request.POST.get(
         'action_type'
     )
@@ -304,15 +323,17 @@ def handle_post(request, note, user):
     # =====================================
 
     if action_type == 'save':
+
         save_note_content(
-        request,
-        note,
-        user
-    )
+            request,
+            note,
+            user
+        )
+
         return redirect(
-        'edit_notesheet',
-        pk=note.id
-    )
+            'edit_notesheet',
+            pk=note.id
+        )
 
     # =====================================
     # FORWARD FILE
@@ -325,7 +346,6 @@ def handle_post(request, note, user):
             note,
             user
         )
-
     # =====================================
     # CHAIRMAN PURCHASE APPROVE
     # =====================================
@@ -420,6 +440,10 @@ def handle_post(request, note, user):
     'edit_notesheet',
     pk=note.id
 )
+    # =========================================
+    # WORKFLOW CLOSED CHECK
+    # =========================================
+
    
     # =========================================
     # INVALID ACTION

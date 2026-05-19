@@ -78,6 +78,67 @@ Title-{{ note.title }}{% endblock %}
 </a>
 
 {% endif %}
+
+{% if request.session.role|lower == "chairman" %}
+
+    {% if note.procurement_status == "PURCHASE_PENDING_CHAIRMAN" %}
+
+        <div class="card mt-4 shadow-sm border-0">
+
+            <div class="card-header bg-success text-white">
+
+                <h5 class="mb-0">
+                    Chairman Purchase Approval
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="alert alert-info">
+
+                    Purchase notesheet is waiting for approval.
+
+                </div>
+
+                <form method="POST">
+
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        name="action_type"
+                        value="chairman_purchase_approve"
+                        class="btn btn-success">
+
+                        Approve Purchase
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+{% endif %}
+{% if note.procurement_status == "CLOSED" %}
+
+<div class="alert alert-success mt-3">
+
+    <strong>
+        Workflow Closed Successfully.
+    </strong>
+
+    No further action allowed.
+
+</div>
+
+{% endif %}
+
+
 <style>
   .hero-strip {
     background: linear-gradient(135deg, #0f172a, #1e293b);
@@ -1213,4 +1274,25 @@ document.addEventListener('click', function(e) {
 });
 
 </script>
+
+
+{% if note.procurement_status == "CLOSED" %}
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    document.querySelectorAll(
+        'input, textarea, select, button'
+    ).forEach(function(el) {
+
+        el.disabled = true;
+
+    });
+
+});
+
+</script>
+
+{% endif %}
 {% endblock %}

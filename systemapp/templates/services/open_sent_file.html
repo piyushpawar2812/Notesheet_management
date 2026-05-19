@@ -46,7 +46,7 @@
                         <div class="badge-soft mb-3">{{ item.label }}</div>
                         <div class="remark-html mb-2">
                             {% if item.remark_text %}
-                                {{ item.remark_text|safe }}
+                                    {{ item.remark_text|safe }}
                             {% elif item.event_type == 'document' %}
                                 <span class="text-secondary">Supporting document uploaded to this notesheet.</span>
                             {% else %}
