@@ -10,7 +10,8 @@ from systemapp.models import (
     Purpose,
     NoteSheet,
     NoteRemark,
-    QuotationItem,
+    VendorQuotationItem,
+    VendorQuotation,
 )
 
 
@@ -95,24 +96,6 @@ class PurposeAdmin(admin.ModelAdmin):
 # QUOTATION ITEM INLINE
 # =========================================================
 
-class QuotationItemInline(admin.TabularInline):
-
-    model = QuotationItem
-
-    extra = 1
-
-    fields = (
-        'item_name',
-        'quantity',
-        'unit_price',
-        'total_price',
-    )
-
-    readonly_fields = (
-        'total_price',
-    )
-
-
 # =========================================================
 # NOTESHEET ADMIN
 # =========================================================
@@ -187,28 +170,22 @@ class NoteRemarkAdmin(admin.ModelAdmin):
 # QUOTATION ITEM ADMIN
 # =========================================================
 
-@admin.register(QuotationItem)
-class QuotationItemAdmin(admin.ModelAdmin):
+
+@admin.register(VendorQuotationItem)
+class VendorQuotationItem(admin.ModelAdmin):
 
     list_display = (
-        'notesheet',
+        'quotation',
         'item_name',
-        'quantity',
-        'unit_price',
-        'total_price',
-        'vendor_name',
-        'gst_number',
-        'quote_price',
+        'quotation_price',
         'created_at',
+
     )
 
     search_fields = (
         'item_name',
-        'notesheet__notesheet_no',
-        'vendor_name',
-        'gst_number',
-        'quote_price',
     )
+
 
 
 # =======================================================

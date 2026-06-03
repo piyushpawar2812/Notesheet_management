@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NSMS</title>
+    <link rel="icon"
+          type="image/png"
+          href="{% static 'images/logorrc.png' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -355,9 +358,13 @@
 <body>
     <div class="app-shell">
         <aside class="sidebar">
-            <div class="brand-badge">
-                <i class="fa-solid fa-file-signature fa-lg"></i>
-            </div>
+            <div >
+
+    <img src="{% static 'images/logorrc.png' %}"
+         alt="Logo"
+         style="height:50px; width:auto;">
+
+</div>
             <div class="brand-title sidebar-copy">Notesheet Management</div>
             <div class="brand-copy sidebar-copy">Transparent file movement, visible conversation trails, and a flow that matches office note handling.</div>
 
@@ -365,8 +372,7 @@
                 <i class="fa-solid fa-plus"></i>
                 <span class="sidebar-label">Create Notesheet</span>
             </a>
-
-            {% if request.session.role|lower == "chairman" or request.session.role|lower == "admin" %}
+{% if request.session.role|lower == "chairman" or request.session.role|lower == "admin" %}
 
 <a href="{% url 'dashboard_view' %}" class="nav-link-tile"> 
 
@@ -378,35 +384,43 @@
 
 </a>
 
-    {% endif %}
+{% else %}
 
+<a href="{% url 'dashboard' %}" class="nav-link-tile"> 
 
+    <i class="fa-solid fa-chart-line"></i>
 
-        
+    <span class="sidebar-label">
+        Dashboard
+    </span>
+
+</a>
+
+{% endif %}
             <a href="{% url 'your_notesheets' %}" class="nav-link-tile">
                 <i class="fa-solid fa-folder-open"></i>
-                <span class="sidebar-label">All My File Access</span>
+                <span class="sidebar-label">All My Files</span>
             </a>
             <a href="{% url 'inbox' %}" class="nav-link-tile">
                 <i class="fa-solid fa-inbox"></i>
                 <span class="sidebar-label">Inbox</span>
             </a>
-            <a href="{% url 'sent_notes' %}" class="nav-link-tile">
+            {% comment %} <a href="{% url 'sent_notes' %}" class="nav-link-tile">
                 <i class="fa-solid fa-paper-plane"></i>
                 <span class="sidebar-label">Sent Register</span>
-            </a>
-{% if request.session.role|lower == "purchase" %}
+            </a> {% endcomment %}
+{% if request.session.role|lower == "chairman" or request.session.role|lower == "admin" or request.session.role|lower == "purchase"%}
                         <a href="{% url 'inventory_stock' %}" class="nav-link-tile">
                 <i class="fa-solid fa-folder-open"></i>
                 <span class="sidebar-label">Stock Inventory</span>
             </a>
 {% endif %}
 
-            <a href="{% url 'notesheet_search' %}" class="nav-link-tile">
+            {% comment %} <a href="{% url 'notesheet_search' %}" class="nav-link-tile">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <span class="sidebar-label" type="text"
                                 name="q" value="{{ request.GET.q }}">search</span>
-            </a>
+            </a> {% endcomment %}
         </aside>
 
         <main class="main-panel">

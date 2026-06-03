@@ -6,8 +6,10 @@ Note No.-{{ note.notesheet_no }} <br>
 Title-{{ note.title }}{% endblock %}
 {% block page_subtitle %}Modern notesheet workspace with a visible discussion trail, inline attachments, and clean forwarding controls.{% endblock %}
 {% block content %}
-{% include 'services/purchase_flow.html' %}
-<!-- PURCHASE OFFICER QUOTATION ENTRY -->
+
+
+    {% include 'services/purchase_flow.html' %}
+
 
 {% if request.session.role|lower == "purchase" %}
 
@@ -18,8 +20,7 @@ Title-{{ note.title }}{% endblock %}
     {% endif %}
 
 {% endif %}
-
-{% if request.session.role|lower == "chairman" %}
+{% if request.session.role|lower == "chairman" or request.session.role|lower == "admin" %}
     <!-- CHAIRMAN QUOTATION REVIEW -->
     {% if note.procurement_status == "QUOTATION_PENDING_CHAIRMAN" %}
 
@@ -27,11 +28,14 @@ Title-{{ note.title }}{% endblock %}
 
     {% endif %}
  {% endif %}
+
+
 {% if note.procurement_status == "PO_PENDING" and can_edit %}
 
     {% include 'services/generate_po.html' %}
 
-{% endif %}{% if request.session.role|lower == "purchase" %}
+{% endif %}
+{% if request.session.role|lower == "purchase" %}
 
     <!-- INVENTORY ENTRY -->
     {% if note.procurement_status == "INVENTORY_PENDING" %}
@@ -56,10 +60,9 @@ Title-{{ note.title }}{% endblock %}
 {% endif %}
 
 
+{% if request.session.role|lower == "chairman"  or request.session.role|lower == "admin" %}
 
-{% if request.session.role|lower == "chairman" %}
-
-    <!-- CHAIRMAN BILL APPROVAL -->
+    <!-- chairman billing APPROVAL -->
     {% if note.procurement_status == "BILL_PENDING_CHAIRMAN" %}
 
         {% include 'services/finance_approval.html' %}
@@ -67,19 +70,39 @@ Title-{{ note.title }}{% endblock %}
     {% endif %}
 
 {% endif %}
-{% if note.po_pdf %}
 
-<a href="{{ note.po_pdf.url }}"
-   target="_blank"
-   class="btn btn-success">
+<br>
+<div class="d-flex gap-3 align-items-center flex-wrap">
 
-    View Purchase Order PDF
+    {% if note.po_pdf %}
 
-</a>
+        <a href="{{ note.po_pdf.url }}"
+           target="_blank"
+           class="btn btn-primary">
 
-{% endif %}
+            View Purchase Order PDF
 
-{% if request.session.role|lower == "chairman" %}
+        </a>
+
+    {% endif %}
+
+
+    {% if note.finance_attachment %}
+
+        <a href="{{ note.finance_attachment.url }}"
+           target="_blank"
+           class="btn btn-primary">
+
+            View Invoice
+
+        </a>
+
+    {% endif %}
+
+</div>
+<br>
+
+{% if request.session.role|lower == "chairman" or request.session.role|lower == "admin" %}
 
     {% if note.procurement_status == "PURCHASE_PENDING_CHAIRMAN" %}
 
@@ -744,7 +767,7 @@ Title-{{ note.title }}{% endblock %}
 
             <div class="remark-text-area">
             {% if item.remark_text %}
-                  <h3>#Note {{ forloop.counter }}-{{ item.remark_text|safe }}</h3>
+                  <h5>#Note {{ forloop.counter }}-{{ item.remark_text|safe }}</h5>
                 {% else %}
 
                     <span class="text-secondary">
@@ -837,8 +860,28 @@ Title-{{ note.title }}{% endblock %}
 
 
 {% endif %}
+
+{% if note.approved_by %}
+
+<div class="mt-2">
+
+    <span class="badge bg-success">
+
+        Approved By :
+        {{ note.approved_by.officer_name }}
+        (
+        {{ note.approved_by.role.role_name }}
+        )
+
+    </span>
+
 </div>
+
+{% endif %}
 </div>
+ 
+</div>
+
 
     <!-- TOP RIGHT : FORWARD -->
     <div class="surface-card forward-panel ">
@@ -935,6 +978,42 @@ Title-{{ note.title }}{% endblock %}
                        {% if not can_edit %}disabled{% endif %}>
 
             </div>
+<!-- GENERAL STATUS -->
+
+    <div class="mb-3">
+
+        <label class="form-label fw-bold">
+
+           STATUS
+
+        </label>
+
+        <select name="general_status"
+                class="form-select">
+
+             <option value="" disabled selected>---selected---</option>
+
+            <option value="APPROVED"
+            {% if note.general_status == "APPROVED" %}
+            selected
+            {% endif %}>
+
+                Approved
+
+            </option>
+
+            <option value="REJECTED"
+            {% if note.general_status == "REJECTED" %}
+            selected
+            {% endif %}>
+
+                Rejected
+
+            </option>
+
+        </select>
+
+    </div>
 
             <div class="col-12 d-flex justify-content-end">
 
@@ -947,6 +1026,8 @@ Title-{{ note.title }}{% endblock %}
                 </button>
 
             </div>
+
+            
 
         </form>
 
@@ -987,7 +1068,9 @@ Title-{{ note.title }}{% endblock %}
     </div>
 </div>
 
-{% if quotations %}
+
+{% comment %} <!-------------Vendor Qoutation details-----------> {% endcomment %}
+{% if note.vendors.all %}
 
 <div class="card mt-4">
 
@@ -999,79 +1082,101 @@ Title-{{ note.title }}{% endblock %}
 
     <div class="card-body">
 
-        <table class="table table-bordered">
+        {% for vendor in note.vendors.all %}
 
-            <thead>
-                <tr>
-                    <th>Status</th>
-                    <th>Vendor</th>
-                    <th>Item</th>
-                    <th>Qty</th>
-                    <th>Unit Price</th>
-                    <th>Quate Price</th>
-                    <th>Uploaded File</th>
-                </tr>
-            </thead>
+        <div class="border rounded p-3 mb-4">
 
-            <tbody>
+            <h5>
 
-                {% for q in quotations %}
+                {{ vendor.vendor_name }}
 
-                <tr {% if q.is_l1 %}class="table-success"{% endif %}>
+                {% if vendor.is_winner %}
 
-                <td>
+                <span class="badge bg-success">
 
-        {% if q.is_l1 %}
+                    Winner
 
-            <span class="badge bg-success">
-                L1 Winner
-            </span>
+                </span>
 
-        {% else %}
+                {% endif %}
 
-            <span class="badge bg-secondary">
-                Participated
-            </span>
+            </h5>
 
-        {% endif %}
+            <p>
+                GST : {{ vendor.gst_number }}
+            </p>
 
-    </td>
+            <p>
+                Address : {{ vendor.address }}
+            </p>
 
+            <p>
+                Total :
+                ₹ {{ vendor.total_amount }}
+            </p>
 
-                    <td>{{ q.vendor_name }}</td>
+            Uploaded File
+                    <a href="{{ vendor.quotation_file.url }}"
+                                   target="_blank"
+                                   class="file-btn">
 
-                    <td>{{ q.item_name }}</td>
+                                    <i class="fa-solid fa-paperclip"></i>
 
-                    <td>{{ q.quantity }}</td>
+                                    View File
 
-                    <td>{{ q.unit_price }}</td>
+                </a>
 
-                    <td>{{ q.quote_price }}</td>
+            <table class="table table-bordered">
 
-                    <td>
+                <thead>
 
-                        {% if q.quotation_file %}
+                    <tr>
 
-                        <a href="{{ q.quotation_file.url }}"
-                           target="_blank">
+                        <th>Item</th>
 
-                            View File
+                        <th>Qty</th>
 
-                        </a>
+                        <th>Unit Price</th>
 
-                        {% endif %}
+                        <th>Quotation Price</th>
 
-                    </td>
+                        <th>Total</th>
 
-                </tr>
+                    </tr>
 
-                {% endfor %}
+                </thead>
 
-            </tbody>
+                <tbody>
 
-        </table>
+                    {% for item in vendor.items.all %}
+
+                    <tr>
+
+                        <td>{{ item.item_name }}</td>
+
+                        <td>{{ item.quantity }}</td>
+
+                        <td>{{ item.unit_price }}</td>
+
+                        <td>{{ item.quotation_price }}</td>
+
+                        <td>{{ item.total_price }}</td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% endfor %}
 
     </div>
+
+</div>
 
 
     <!-------------------------->

@@ -1,3 +1,4 @@
+
 {% if note.procurement_status == "INVENTORY_PENDING" %}
 
 <div class="card mt-4 shadow-sm">
@@ -5,7 +6,9 @@
     <div class="card-header bg-success text-white">
 
         <h5 class="mb-0">
+
             Inventory Entry / Material Received
+
         </h5>
 
     </div>
@@ -17,127 +20,184 @@
 
             {% csrf_token %}
 
+            <!-- ===================================== -->
+            <!-- WINNER VENDOR -->
+            <!-- ===================================== -->
+
+            {% with winner=note.vendors.filter.is_winner %}
+
+            {% endwith %}
+
+            {% for vendor in note.vendors.all %}
+
+            {% if vendor.is_winner %}
+
+            <div class="alert alert-info">
+
+                <strong>
+                    Winner Vendor :
+                </strong>
+
+                {{ vendor.vendor_name }}
+
+            </div>
+
+            <!-- ===================================== -->
+            <!-- ITEMS TABLE -->
+            <!-- ===================================== -->
+
+            <table class="table table-bordered">
+
+                <thead class="table-dark">
+
+                    <tr>
+
+                        <th>Category</th>
+
+                        <th>Item Name</th>
+
+                        <th>Ordered Qty</th>
+
+                        <th>Received Qty</th>
+
+                        <th>Unit Price</th>
+
+                        <th>Total Price</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for item in vendor.items.all %}
+
+                    <tr>
+
+                        <!-- CATEGORY -->
+
+                        <td>
+
+                            <input type="text"
+                                   name="category_{{ item.id }}"
+                                   class="form-control">
+
+                        </td>
+
+                        <!-- ITEM NAME -->
+
+                        <td>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="{{ item.item_name }}"
+                                   readonly>
+
+                        </td>
+
+                        <!-- ORDERED QTY -->
+
+                        <td>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="{{ item.quantity }}"
+                                   readonly>
+
+                        </td>
+
+                        <!-- RECEIVED QTY -->
+
+                        <td>
+
+                            <input type="number"
+                                   name="quantity_{{ item.id }}"
+                                   value="{{ item.quantity }}"
+                                   class="form-control"
+                                   required>
+
+                        </td>
+
+                        <!-- PRICE -->
+
+                        <td>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="{{ item.quotation_price }}"
+                                   readonly>
+
+                        </td>
+ <!-- Total PRICE -->
+                        <td>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="{{ item.vendor.total_amount }}"
+                                   readonly>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% endif %}
+
+            {% endfor %}
+
+            <!-- ===================================== -->
+            <!-- DATE -->
+            <!-- ===================================== -->
+
             <div class="row">
 
-                <!-- 
-                       Vendor Name -->
+                <div class="col-md-6 mb-3">
 
-                               <div class="col-md-6 mb-3">
+                    <label class="fw-bold">
 
-                    <label class="form-label fw-bold">
-
-                       Item Category
+                        Received Date
 
                     </label>
 
-                    <input type="text"
-                           name="item_name"
+                    <input type="date"
+                           name="added_date"
                            class="form-control"
                            required>
-
-                </div>
-                <!-- ITEM -->
-
-                <div class="col-md-6 mb-3">
-
-                    <label class="form-label fw-bold">
-
-                        Item Name
-
-                    </label>
-
-                    <input type="text"
-                           name="item_name"
-                           class="form-control"
-                           required>
-
-                </div>
-
-                <!-- QTY -->
-
-                <div class="col-md-6 mb-3">
-
-                    <label class="form-label fw-bold">
-
-                        Quantity Received
-
-                    </label>
-
-                    <input type="number"
-                           name="quantity"
-                           class="form-control"
-                           required>
-
-                </div>
-
-                <!-- PRICE -->
-
-                <div class="col-md-6 mb-3">
-
-                    <label class="form-label fw-bold">
-
-                        Price
-
-                    </label>
-
-                    <input type="number"
-                           step="0.01"
-                           name="price"
-                           class="form-control">
-
-                </div>
-
-                <!-- SUPPLIER -->
-
-                <div class="col-md-6 mb-3">
-
-                    <label class="form-label fw-bold">
-
-                        Supplier Name
-
-                    </label>
-
-                    <input type="text"
-                           name="supplier_name"
-                           class="form-control">
-
-                </div>
- <!-- Date -->
-                <div class="col-md-6 mb-3">
-
-    <label class="form-label fw-bold">
-
-        Received Date
-
-    </label>
-
-    <input type="date"
-           name="added_date"
-           class="form-control"
-           required>
-
-</div>
-                </div>
-
-                <!-- DESCRIPTION -->
-
-                <div class="col-12 mb-3">
-
-                    <label class="form-label fw-bold">
-
-                        Description
-
-                    </label>
-
-                    <textarea name="description"
-                              rows="4"
-                              class="form-control"></textarea>
 
                 </div>
 
             </div>
 
-            <button class="btn btn-success col-md-2 mb-3">
+            <!-- ===================================== -->
+            <!-- USER REMARK -->
+            <!-- ===================================== -->
+
+            <div class="mb-3">
+
+                <label class="fw-bold">
+
+                    Inventory Remark
+
+                </label>
+
+                <textarea name="remark_text"
+                          rows="4"
+                          class="form-control"
+                          placeholder="Enter inventory verification remark..."
+                          required></textarea>
+
+            </div>
+
+            <!-- ===================================== -->
+            <!-- BUTTON -->
+            <!-- ===================================== -->
+
+            <button class="btn btn-success">
 
                 Save Inventory & Send To Finance
 

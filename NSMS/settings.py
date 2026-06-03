@@ -79,10 +79,10 @@ WSGI_APPLICATION = 'NSMS.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'radharamanclg',
+        'NAME': 'RADHARAMAN',
         'USER': 'postgres',
         'PASSWORD': '123456789',   # apna password
-        'HOST': 'localhost',
+        'HOST': '127.0.0.1',
         'PORT': '5432',
     }}
 
@@ -121,9 +121,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
+
 STATIC_URL = '/static/'
-STATIC_ROOT='/staticfiles/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'systemapp/static'),
+]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 MEDIA_URL = '/media/'
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type

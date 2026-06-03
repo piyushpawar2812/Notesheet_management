@@ -1,9 +1,14 @@
+{%load static%}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | NSMS</title>
+    <link rel="icon"
+          type="image/png"
+          href="{% static 'images/logorrc.png' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -146,11 +151,28 @@
                 <div class="hero-point">Manage Purchase </div>
             </div>
         </section>
+<section class="form-pane">
 
-        <section class="form-pane">
-            <div class="form-card">
-                <div class="form-title">Sign in</div>
-                <div class="form-copy">Enter your office credentials to continue.</div>
+    <div class="form-card">
+
+        <!-- LOGO IMAGE -->
+
+        <div class="text-center mb-3">
+
+            <img src="{% static 'images\logorrc.png' %}"
+                 alt="Logo"
+                 class="img-fluid"
+                 style="max-height:150px;">
+
+        </div>
+
+        <div class="form-title">
+            Sign in
+        </div>
+
+        <div class="form-copy">
+            Enter your office credentials to continue.
+        </div>
 
                 <form method="POST" onsubmit="return validateForm()">
                     {% csrf_token %}
@@ -176,7 +198,7 @@
                         <div class="alert alert-danger">{{ error }}</div>
                     {% endif %}
 
-                    <button class="btn-login mt-2">Login to NSMS</button>
+                    <button class="btn-login mt-2">Login to RadhaRaman NSMS</button>
                 </form>
             </div>
         </section>

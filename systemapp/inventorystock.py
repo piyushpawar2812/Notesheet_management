@@ -21,7 +21,9 @@ def inventory_stock(request):
 
     search = request.GET.get('search', '')
 
-    data = InventoryItem.objects.all().order_by('-id')
+    data = InventoryItem.objects.select_related(
+            'notesheet'
+        ).all().order_by('-id')
 
     if search:
 

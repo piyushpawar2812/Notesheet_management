@@ -15,11 +15,12 @@
     </div>
 
     <div class="table-responsive">
-        <table class="table-modern">
+        <table class="table-modern" id="inboxTable">
             <thead>
                 <tr>
                     <th>Notesheet</th>
-                    <th>Department</th>
+                    <th>Purpose</th>
+                    <th>Collage</th>
                     <th>Created By</th>
                     <th>Current Holder</th>
                     <th>Status</th>
@@ -33,6 +34,8 @@
                             <div class="fw-bold">{{ row.instance.notesheet_no }}</div>
                             <div class="text-secondary small">{{ row.instance.title }}</div>
                         </td>
+                        
+                        <td>{{ row.instance.purpose.purpose_name|default:"Not assigned" }}</td>
                         <td>{{ row.instance.department.department_name|default:"Not assigned" }}</td>
                         <td>{{ row.instance.created_by.officer_name }}</td>
                         <td>{{ row.current_holder.officer_name }}</td>
@@ -60,4 +63,36 @@
         </table>
     </div>
 </div>
+
+<link rel="stylesheet"
+href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
+
+$(document).ready(function () {
+
+    $('#inboxTable').DataTable({
+
+        paging: true,
+
+        info: false,
+
+        ordering: false,
+
+        responsive: true,
+
+        language: {
+
+            search: "Search Notesheet : "
+
+        }
+
+    });
+
+});
+
+</script>
 {% endblock %}

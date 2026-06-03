@@ -1,0 +1,6 @@
+login_id,password,officer_name,department,designation,status,is_deleted,created_date,updated_date,role_id
+admin,admin,admin,admin,admin,TRUE,FALSE,2026-05-27 15:44:56.712169+05:30,2026-05-27 15:44:56.712183+05:30,1
+hod,hod1,hod1,Hod,Hod,TRUE,FALSE,2026-05-27 15:44:56.712169+05:30,2026-05-27 15:44:56.712183+05:30,2
+director,director,director,Director,Director,TRUE,FALSE,2026-05-27 15:44:56.712169+05:30,2026-05-27 15:44:56.712183+05:30,3
+purchase,purchase,purchase,Purchase,Purchase,TRUE,FALSE,2026-05-27 15:44:56.712169+05:30,2026-05-27 15:44:56.712183+05:30,5
+finance,finance,finance,finance,finance,TRUE,FALSE,2026-05-27 15:44:56.712169+05:30,2026-05-27 15:44:56.712183+05:30,6

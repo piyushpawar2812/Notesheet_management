@@ -1,0 +1,2 @@
+"id","login_id","password","officer_name","department","employee_no","designation","mobile_no","status","is_deleted","created_date","updated_date","role_id"
+1,"chairman","chairman","Chairman","Chairman",123,"Chairman",123,True,False,"2026-05-27 15:44:56.712169+05:30","2026-05-27 15:44:56.712183+05:30",4

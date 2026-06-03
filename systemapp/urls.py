@@ -63,6 +63,12 @@ urlpatterns = [
     views.add_quotation,
     name='add_quotation'
 ),
+
+
+    path('select-vendor-winner/<int:vendor_id>/',
+         views.select_vendor_winner,
+         name='select_vendor_winner'),
+
     
 path(
     'quotation-details/<int:pk>/',

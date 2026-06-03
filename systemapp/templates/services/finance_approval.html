@@ -56,47 +56,50 @@
 {% endif %}
 
 
+{% if request.session.role|lower == "chairman"  or request.session.role|lower == "admin" %}
 
-{% if note.procurement_status == "BILL_PENDING_CHAIRMAN" %}
+    <!-- chairman billing APPROVAL -->
+    {% if note.procurement_status == "BILL_PENDING_CHAIRMAN" %}
 
-<div class="card mt-4 shadow-sm border-0">
+    <div class="card mt-4 shadow-sm border-0">
 
-    <div class="card-header bg-warning">
+        <div class="card-header bg-warning">
 
-        <h5 class="mb-0">
-            Chairman Billing Approval
-        </h5>
-
-    </div>
-
-    <div class="card-body">
-
-        <div class="alert alert-warning">
-
-            Finance sent billing for chairman approval.
+            <h5 class="mb-0">
+                Chairman Billing Approval
+            </h5>
 
         </div>
 
-        <form method="POST">
+        <div class="card-body">
 
-            {% csrf_token %}
+            <div class="alert alert-warning">
 
-            <button
-                type="submit"
-                name="action_type"
-                value="chairman_billing_approve"
-                class="btn btn-success"
-            >
-                Chairman Approve Billing
-            </button>
+                Finance sent billing for chairman approval.
+</div>
 
-        </form>
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    name="action_type" 
+                    value="chairman_billing_approve"
+                    class="btn btn-success">
+               
+                    Chairman Approve Billing
+                </button>
+
+            </form>
+
+        </div>
 
     </div>
 
-</div>
-
-{% endif %}
+    {% endif %}
+    {% endif %}
 
 
 

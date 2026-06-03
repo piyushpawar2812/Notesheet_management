@@ -12,6 +12,12 @@
 </div>
 
 {% endif %}
+
+
+<!-- ===================================== -->
+<!-- ADD VENDOR QUOTATION -->
+<!-- ===================================== -->
+{% if request.session.role|lower == "purchase" %}
 <div class="card mt-4">
 
     <div class="card-header bg-primary text-white">
@@ -30,82 +36,152 @@
 
             <div class="row">
 
+                <!-- VENDOR NAME -->
                 <div class="col-md-6 mb-3">
+
                     <label>Vendor Name</label>
+
                     <input type="text"
                            name="vendor_name"
-                           class="form-control" required>
+                           class="form-control"
+                           required>
+
                 </div>
 
+                <!-- GST -->
                 <div class="col-md-6 mb-3">
+
                     <label>GST Number</label>
+
                     <input type="text"
                            name="gst_number"
                            class="form-control">
+
                 </div>
 
-                <div class="col-md-6 mb-3">
-                    <label>Item Name</label>
-                    <input type="text"
-                           name="item_name"
-                           class="form-control" required>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label>Quantity</label>
-                    <input type="text"
-                           name="quantity"
-                           class="form-control">
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label>Unit Price</label>
-                    <input type="number"
-                           step="0.01"
-                           name="unit_price"
-                           class="form-control">
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label>Quotation Price</label>
-                    <input type="text"
-                           name="quote_price"
-                           class="form-control">
-                </div>
-
+                <!-- ADDRESS -->
                 <div class="col-12 mb-3">
-                    <label>Vendor Address</label>
+
+                    <label>Address</label>
+
                     <textarea name="address"
                               class="form-control"></textarea>
+
                 </div>
 
+                <!-- FILE -->
                 <div class="col-12 mb-3">
+
                     <label>Quotation File</label>
+
                     <input type="file"
                            name="quotation_file"
                            class="form-control">
+
                 </div>
 
             </div>
 
-            <button class="btn btn-success">
+            <!-- ===================================== -->
+            <!-- ITEMS TABLE -->
+            <!-- ===================================== -->
 
-                Add Quotation
+            <table class="table table-bordered"
+                   id="items-table">
+
+                <thead class="table-dark">
+
+                    <tr>
+
+                        <th>Item Name</th>
+
+                        <th>Quantity</th>
+
+                        <th>Unit Price</th>
+
+                        <th>Quotation Price</th>
+
+                        <th>Total</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr>
+
+                        <td>
+                            <input type="text"
+                                   name="item_name[]"
+                                   class="form-control"
+                                   required>
+                        </td>
+
+                        <td>
+                            <input type="number"
+                                   name="quantity[]"
+                                   class="form-control qty"
+                                   required>
+                        </td>
+
+                        <td>
+                            <input type="number"
+                                   step="0.01"
+                                   name="unit_price[]"
+                                   class="form-control"
+                                   required>
+                        </td>
+
+                        <td>
+                            <input type="number"
+                                   step="0.01"
+                                   name="quotation_price[]"
+                                   class="form-control quote-price"
+                                   required>
+                        </td>
+
+                        <td>
+                            <input type="text"
+                                   class="form-control total-price"
+                                   readonly>
+                        </td>
+
+                        <td>
+
+                            <button type="button"
+                                    class="btn btn-danger remove-row">
+
+                                Remove
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+            <!-- ===================================== -->
+            <!-- BUTTONS -->
+            <!-- ===================================== -->
+
+            <button type="button"
+                    id="add-item-btn"
+                    class="btn btn-info">
+
+                Add Item
 
             </button>
 
-        </form>
+            <button type="submit"
+                    class="btn btn-success">
 
-        <hr>
-
-        <form method="POST"
-              action="{% url 'send_quotation_to_chairman' note.id %}">
-
-            {% csrf_token %}
-
-            <button class="btn btn-dark">
-
-                Send To Chairman
+                Save Vendor Quotation
 
             </button>
 
@@ -114,3 +190,267 @@
     </div>
 
 </div>
+{% endif %}
+
+<!-- ===================================== -->
+<!-- SHOW ALL VENDORS -->
+<!-- ===================================== -->
+<div class="card mt-4">
+
+    <div class="card-header bg-dark text-white">
+
+        Vendor Quotations
+
+    </div>
+
+    <div class="card-body">
+
+        {% for vendor in note.vendors.all %}
+
+        <div class="border p-3 mb-4 rounded">
+
+            <div class="d-flex justify-content-between">
+
+                <div>
+
+                    <h5>
+
+                        Vendor Name: {{ vendor.vendor_name }}
+
+                        {% if vendor.is_winner %}
+
+                        <span class="badge bg-success">
+
+                            Winner
+
+                        </span>
+
+                        {% endif %}
+
+                    </h5>
+
+                    <p>
+                        GST : {{ vendor.gst_number }}
+                    </p>
+
+                    <p>
+                        Total : ₹ {{ vendor.total_amount }}
+                    </p>
+                    Uploaded File
+                    <a href="{{ vendor.quotation_file.url }}"
+                                   target="_blank"
+                                   class="file-btn">
+
+                                    <i class="fa-solid fa-paperclip"></i>
+
+                                    View File
+
+                </a>
+
+                </div>
+                {% if request.session.role|lower == "purchase" %}
+                <div>
+
+                    <a href="{% url 'select_vendor_winner' vendor.id %}"
+                       class="btn btn-success">
+
+                        ✔ Select Winner
+
+                    </a>
+
+                </div>
+                {% endif %}
+       
+
+         </div>
+
+            <table class="table table-bordered mt-3">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th>Item</th>
+
+                        <th>Qty</th>
+
+                        <th>Unit Price</th>
+
+                        <th>Quotation Price</th>
+
+                        <th>Total</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for item in vendor.items.all %}
+
+                    <tr>
+
+                        <td>
+                            {{ item.item_name }}
+                        </td>
+
+                        <td>
+                            {{ item.quantity }}
+                        </td>
+
+                        <td>
+                            ₹ {{ item.unit_price }}
+                        </td>
+
+                        <td>
+                            ₹ {{ item.quotation_price }}
+                        </td>
+
+                        <td>
+                            ₹ {{ item.total_price }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% empty %}
+
+        <div class="alert alert-warning">
+
+            No vendor quotations added.
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+
+    
+<hr>
+
+{% if request.session.role|lower == "purchase" %}
+<form method="POST"
+      action="{% url 'send_quotation_to_chairman' note.id %}">
+
+    {% csrf_token %}
+
+    <button class="btn btn-dark">
+
+        Send To Chairman
+
+    </button>
+
+</form>
+
+</div>
+{% endif %}
+
+<!-- ===================================== -->
+<!-- JAVASCRIPT -->
+<!-- ===================================== -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$('#add-item-btn').click(function () {
+
+    $('#items-table tbody').append(`
+
+    <tr>
+
+        <td>
+            <input type="text"
+                   name="item_name[]"
+                   class="form-control"
+                   required>
+        </td>
+
+        <td>
+            <input type="number"
+                   name="quantity[]"
+                   class="form-control qty"
+                   required>
+        </td>
+
+        <td>
+            <input type="number"
+                   step="0.01"
+                   name="unit_price[]"
+                   class="form-control"
+                   required>
+        </td>
+
+        <td>
+            <input type="number"
+                   step="0.01"
+                   name="quotation_price[]"
+                   class="form-control quote-price"
+                   required>
+        </td>
+
+        <td>
+            <input type="text"
+                   class="form-control total-price"
+                   readonly>
+        </td>
+
+        <td>
+
+            <button type="button"
+                    class="btn btn-danger remove-row">
+
+                Remove
+
+            </button>
+
+        </td>
+
+    </tr>
+
+    `);
+
+});
+
+
+$(document).on(
+    'click',
+    '.remove-row',
+    function () {
+
+        $(this).closest('tr').remove();
+
+    }
+);
+
+
+$(document).on(
+    'keyup change',
+    '.qty, .quote-price',
+    function () {
+
+        let row = $(this).closest('tr');
+
+        let qty = parseFloat(
+            row.find('.qty').val()
+        ) || 0;
+
+        let price = parseFloat(
+            row.find('.quote-price').val()
+        ) || 0;
+
+        let total = qty * price;
+
+        row.find('.total-price').val(
+            total.toFixed(2)
+        );
+
+    }
+);
+
+</script>

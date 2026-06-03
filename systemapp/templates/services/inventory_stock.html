@@ -19,44 +19,11 @@
                     Export Excel
                 </a>
 
-                <button
-                    class="btn btn-primary btn-sm"
-                    data-bs-toggle="modal"
-                    data-bs-target="#addInventoryModal">
-                    Add Inventory
-                </button>
-
             </div>
 
         </div>
 
-        <div class="card-body">
-
-            <!-- SEARCH -->
-
-            <form method="GET" class="row mb-3">
-
-                <div class="col-md-4">
-
-                    <input type="text"
-                           name="search"
-                           value="{{ search }}"
-                           class="form-control"
-                           placeholder="Search item...">
-
-                </div>
-
-                <div class="col-md-2">
-
-                    <button class="btn btn-dark w-100">
-                        Search
-                    </button>
-
-                </div>
-
-            </form>
-
-
+{% comment %} 
             <!-- IMPORT EXCEL -->
 
             <form method="POST"
@@ -83,20 +50,20 @@
 
                 </div>
 
-            </form>
+            </form> {% endcomment %}
 
 
             <!-- TABLE -->
 
             <div class="table-responsive">
 
-                <table class="table table-bordered table-hover align-middle">
+                <table class="table table-bordered table-hover align-middle" id="inboxTable">
 
                     <thead class="table-dark">
 
                         <tr>
                             <th>ID</th>
-                            <th>Category</th>
+                            <th>Notesheet</th>
                             <th>Item</th>
                             <th>Quantity</th>
                             <th>Price</th>
@@ -113,9 +80,9 @@
 
                         <tr>
 
-                            <td>{{ item.id }}</td>
+                            <td>{{ forloop.counter }}</td>
 
-                            <td>{{ item.category }}</td>
+                            <td>{{ item.notesheet.notesheet_no }}</td>
 
                             <td>{{ item.item_name }}</td>
 
@@ -221,103 +188,37 @@
 
 <!-- ADD INVENTORY MODAL -->
 
-<div  href="{% url 'add_inventory_stock' %}"class="modal fade"
-     id="addInventoryModal"
-     tabindex="-1">
 
-    <div class="modal-dialog modal-lg">
+<link rel="stylesheet"
+href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
-        <div class="modal-content">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-            <div class="modal-header bg-primary text-white">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
 
-                <h5  class="modal-title">
-                    Add Inventory
-                </h5>
+$(document).ready(function () {
 
-                <button type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal"></button>
+    $('#inboxTable').DataTable({
 
-            </div>
+        paging: true,
 
-            <form method="POST"
-                  action="{% url 'add_inventory_stock' %}">
+        info: false,
 
-                {% csrf_token %}
+        ordering: false,
 
-                <div class="modal-body">
+        responsive: true,
 
-                    <div class="row">
+        language: {
 
-                        <div class="col-md-6 mb-3">
-                            <label>Category</label>
-                            <input type="text"
-                                   name="category"
-                                   class="form-control">
-                        </div>
+            search: "Search Notesheet : "
 
-                        <div class="col-md-6 mb-3">
-                            <label>Item Name</label>
-                            <input type="text"
-                                   name="item_name"
-                                   class="form-control"
-                                   required>
-                        </div>
+        }
 
-                        <div class="col-md-6 mb-3">
-                            <label>Quantity</label>
-                            <input type="number"
-                                   name="quantity"
-                                   class="form-control">
-                        </div>
+    });
 
-                        <div class="col-md-6 mb-3">
-                            <label>Price</label>
-                            <input type="number"
-                                   step="0.01"
-                                   name="price"
-                                   class="form-control">
-                        </div>
+});
 
-                        <div class="col-md-6 mb-3">
-                            <label>Supplier Name</label>
-                            <input type="text"
-                                   name="supplier_name"
-                                   class="form-control">
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label>Received Date</label>
-                            <input type="date"
-                                   name="added_date"
-                                   class="form-control">
-                        </div>
-
-                        <div class="col-12 mb-3">
-                            <label>Description</label>
-                            <textarea name="description"
-                                      class="form-control"></textarea>
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-
-                    <button class="btn btn-success">
-                        Save Inventory
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
-    </div>
-
-</div>
+</script>
 
 {% endblock %}

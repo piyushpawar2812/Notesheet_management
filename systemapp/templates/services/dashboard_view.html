@@ -14,7 +14,7 @@
 
         <div class="col-xl-3 col-md-6">
 
-            <div class="card border-0 shadow-lg dashboard-card bg-primary text-white h-100">
+            <div class="card dashboard-card bg-primary text-white h-100">
 
                 <div class="card-body">
 
@@ -22,11 +22,11 @@
 
                         <div>
 
-                            <h6 class="text-uppercase fw-bold opacity-75">
+                            <h6 class="text-uppercase fw-semibold opacity-75">
                                 Total Notesheets
                             </h6>
 
-                            <h2 class="fw-bold mt-3">
+                            <h2 class="fw-bold mt-3 display-6">
                                 {{ total_notesheets }}
                             </h2>
 
@@ -46,12 +46,11 @@
 
         </div>
 
-
         <!-- PURCHASE NOTESHEETS -->
 
         <div class="col-xl-3 col-md-6">
 
-            <div class="card border-0 shadow-lg dashboard-card bg-success text-white h-100">
+            <div class="card dashboard-card bg-success text-white h-100">
 
                 <div class="card-body">
 
@@ -59,11 +58,11 @@
 
                         <div>
 
-                            <h6 class="text-uppercase fw-bold opacity-75">
+                            <h6 class="text-uppercase fw-semibold opacity-75">
                                 Purchase Notesheets
                             </h6>
 
-                            <h2 class="fw-bold mt-3">
+                            <h2 class="fw-bold mt-3 display-6">
                                 {{ total_purchase_notesheets }}
                             </h2>
 
@@ -83,12 +82,11 @@
 
         </div>
 
-
         <!-- CLOSED PURCHASE -->
 
         <div class="col-xl-3 col-md-6">
 
-            <div class="card border-0 shadow-lg dashboard-card bg-dark text-white h-100">
+            <div class="card dashboard-card bg-dark text-white h-100">
 
                 <div class="card-body">
 
@@ -96,11 +94,11 @@
 
                         <div>
 
-                            <h6 class="text-uppercase fw-bold opacity-75">
+                            <h6 class="text-uppercase fw-semibold opacity-75">
                                 Completed Purchase
                             </h6>
 
-                            <h2 class="fw-bold mt-3">
+                            <h2 class="fw-bold mt-3 display-6">
                                 {{ total_closed_purchase }}
                             </h2>
 
@@ -120,12 +118,11 @@
 
         </div>
 
-
         <!-- TOTAL SPEND -->
 
         <div class="col-xl-3 col-md-6">
 
-            <div class="card border-0 shadow-lg dashboard-card bg-warning h-100">
+            <div class="card dashboard-card bg-warning h-100 text-dark">
 
                 <div class="card-body">
 
@@ -133,11 +130,11 @@
 
                         <div>
 
-                            <h6 class="text-uppercase fw-bold opacity-75">
+                            <h6 class="text-uppercase fw-semibold opacity-75">
                                 Total Spend
                             </h6>
 
-                            <h2 class="fw-bold mt-3">
+                            <h2 class="fw-bold mt-3 display-6">
                                 ₹ {{ total_spend }}
                             </h2>
 
@@ -159,175 +156,672 @@
 
     </div>
 
-
     <!-- ===================================== -->
     <!-- NOTESHEET TABLE -->
     <!-- ===================================== -->
 
-    <div class="card border-0 shadow-lg">
+    <div class="card notesheet-card">
 
-        <div class="card-header bg-dark text-white py-3">
+        <div class="notesheet-header text-white d-flex justify-content-between align-items-center">
 
-            <h4 class="mb-0 fw-bold">
-                Officer Wise Notesheets
-            </h4>
+            <div>
 
-        </div>
+                <h3 class="fw-bold mb-1">
+                    Officer Wise Notesheets
+                </h3>
 
-        <div class="card-body">
+                <p class="mb-0 text-light opacity-75">
+                    Modern procurement workflow dashboard
+                </p>
 
-            <div class="table-responsive">
+            </div>
 
-                <table class="table table-hover align-middle table-bordered">
+            <div>
 
-                    <thead class="table-dark text-center">
-
-                        <tr>
-
-                            <th>Sr.No</th>
-
-                            <th>Initiated By</th>
-
-                            <th>Date Of Initiate</th>
-
-                            <th>Purpose</th>
-
-                            <th>Title</th>
-
-                            <th>Current Stage</th>
-
-                            <th>Supporting Doc</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                        {% for item in officer_notesheets %}
-
-                        <tr>
-
-                            <td class="text-center">
-                                {{ forloop.counter }}
-                            </td>
-
-                            <td>
-
-                                {{ item.created_by.officer_name }}
-
-                            </td>
-
-                            <td>
-
-                                {{ item.created_at|date:'d-m-Y h:i A' }}
-
-                            </td>
-
-                            <td>
-
-                                {{ item.purpose.purpose_name }}
-
-                            </td>
-
-                            <td>
-
-                                <strong>
-                                    {{ item.title }}
-                                </strong>
-
-                            </td>
-
-                            <td>
-
-                                <span class="badge bg-primary px-3 py-2">
-
-                                    {{ item.procurement_status }}
-
-                                </span>
-
-                            </td>
-
-                            <td class="text-center">
-
-                                {% if item.attachment %}
-
-                                <a href="{{ item.attachment.url }}"
-                                   target="_blank"
-                                   class="btn btn-sm btn-success">
-
-                                    View
-
-                                </a>
-
-                                {% else %}
-
-                                <span class="text-muted">
-                                    No File
-                                </span>
-
-                                {% endif %}
-
-                            </td>
-
-                        </tr>
-
-                        {% empty %}
-
-                        <tr>
-
-                            <td colspan="7" class="text-center text-muted py-4">
-
-                                No notesheets found.
-
-                            </td>
-
-                        </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
+                <i class="fa-solid fa-file-lines fs-2 opacity-50"></i>
 
             </div>
 
         </div>
 
+<div class="card-body">
+
+    <div class="table-responsive">
+
+        <table id="notesheetTable" class="table custom-table align-middle">
+
+            <thead>
+                <tr>
+                    <th>Sr.No</th>
+                    <th>Initiated By</th>
+                    <th>Notesheet No.</th>
+                    <th>Date</th>
+                    <th>Purpose</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Attachment</th>
+                    <th>Open</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for row in noteopen %}
+
+                {% with item=row.instance %}
+
+                <tr>
+
+                    <!-- SR NO -->
+                    <td class="fw-bold text-center">
+                        {{ forloop.counter }}
+                    </td>
+
+                    <!-- INITIATED BY -->
+                    <td>
+                        <div class="fw-semibold">
+                            {{ item.created_by.officer_name }}
+                        </div>
+                    </td>
+
+                    <!-- NOTESHEET NO -->
+                    <td>
+                        <div class="fw-semibold">
+                            {{ item.notesheet_no }}
+                        </div>
+                    </td>
+
+                    <!-- DATE -->
+                    <td>
+                        {{ item.created_at|date:'d-m-Y h:i A' }}
+                    </td>
+
+                    <!-- PURPOSE -->
+                    <td>
+                        <span class="purpose-badge">
+                            {{ item.purpose.purpose_name }}
+                        </span>
+                    </td>
+
+                    <!-- TITLE -->
+                    <td>
+                        <div class="fw-bold text-dark">
+                            {{ item.title }}
+                        </div>
+                    </td>
+
+                    <!-- STATUS -->
+                     <td>
+                        {% if item.purpose.purpose_name|lower == 'purchase' %}
+                        <span class="status-badge">
+                             {{ item.procurement_status }}
+                        </span>
+                        {% else %}
+                            <span class="badge bg-success">
+                                {{ item.general_status }}
+                            </span>
+                            <br>
+                        {% if item.approved_by %}
+                        <small class="badge bg-success">
+                            By
+                             {{ item.approved_by.officer_name }}-{{item.approved_by.designation}}
+                            </small>
+                        {% endif %}
+                        
+                        {% endif %}
+
+</td>
+                    <!-- ATTACHMENT -->
+                    <td class="text-center">
+
+                        {% with remark=item.remarks.first %}
+
+                            {% if remark and remark.attachment %}
+
+                                <a href="{{ remark.attachment.url }}"
+                                   target="_blank"
+                                   class="file-btn">
+
+                                    <i class="fa-solid fa-paperclip"></i>
+
+                                    View File
+
+                                </a>
+
+                            {% else %}
+
+                                No File
+
+                            {% endif %}
+
+                        {% endwith %}
+
+                    </td>
+
+                    <!-- OPEN BUTTON -->
+                    <td>
+
+        
+                            <a href="{% url 'edit_notesheet' row.instance.id %}" class="btn btn-soft">
+                                Open
+                            </a>
+
+
+                    </td>
+
+                </tr>
+
+                {% endwith %}
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="9" class="text-center text-muted">
+                        No notesheets found.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
     </div>
 
 </div>
 
-
 <style>
 
-.dashboard-card {
+body{
 
-    border-radius: 20px;
-
-    transition: 0.3s ease;
-
-    overflow: hidden;
+    background:#f4f7fb;
 }
 
-.dashboard-card:hover {
+/* =========================================
+   DASHBOARD CARDS
+========================================= */
 
-    transform: translateY(-5px);
+.dashboard-card{
+
+    border:none;
+
+    border-radius:28px;
+
+    overflow:hidden;
+
+    position:relative;
+
+    transition:.35s ease;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.08);
 }
 
-.dashboard-icon {
+.dashboard-card:hover{
 
-    font-size: 42px;
+    transform:translateY(-8px);
 
-    opacity: 0.35;
+    box-shadow:
+        0 18px 40px rgba(0,0,0,.12);
 }
 
-.table td,
-.table th {
+.dashboard-card::before{
 
-    vertical-align: middle;
+    content:'';
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255,255,255,.15),
+            transparent
+        );
+
+    pointer-events:none;
+}
+
+.dashboard-icon{
+
+    font-size:60px;
+
+    opacity:.18;
+
+    transition:.35s ease;
+}
+
+.dashboard-card:hover .dashboard-icon{
+
+    transform:scale(1.12) rotate(-6deg);
+}
+
+/* =========================================
+   MAIN TABLE CARD
+========================================= */
+
+.notesheet-card{
+
+    border:none;
+
+    border-radius:30px;
+
+    overflow:hidden;
+
+    background:white;
+
+    box-shadow:
+        0 12px 40px rgba(0,0,0,.06);
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.notesheet-header{
+
+    padding:24px 28px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #111827,
+            #1f2937
+        );
+}
+
+/* =========================================
+   TABLE
+========================================= */
+
+.custom-table{
+
+    border-collapse:separate;
+
+    border-spacing:0 14px;
+}
+
+.custom-table thead th{
+
+    border:none !important;
+
+    background:#111827 !important;
+
+    color:white !important;
+
+    padding:18px;
+
+    text-transform:uppercase;
+
+    font-size:13px;
+
+    letter-spacing:.5px;
+}
+
+.custom-table tbody tr{
+
+    background:white;
+
+    transition:.3s ease;
+
+    border-radius:20px;
+
+    box-shadow:
+        0 5px 20px rgba(0,0,0,.05);
+}
+
+.custom-table tbody tr:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:
+        0 12px 30px rgba(0,0,0,.08);
+}
+
+.custom-table td{
+
+    padding:20px;
+
+    vertical-align:middle;
+
+    border-top:none !important;
+
+    border-bottom:none !important;
+}
+
+/* =========================================
+   BADGES
+========================================= */
+
+.status-badge{
+
+    display:inline-block;
+
+    padding:10px 18px;
+
+    border-radius:999px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #1d4ed8
+        );
+
+    color:white;
+
+    font-size:12px;
+
+    font-weight:700;
+
+    letter-spacing:.4px;
+}
+
+.purpose-badge{
+
+    display:inline-block;
+
+    padding:8px 14px;
+
+    border-radius:999px;
+
+    background:#ecfdf5;
+
+    color:#047857;
+
+    font-size:12px;
+
+    font-weight:700;
+}
+
+/* =========================================
+   FILE BUTTON
+========================================= */
+
+.file-btn{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    padding:10px 18px;
+
+    border-radius:14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #16a34a,
+            #15803d
+        );
+
+    color:white !important;
+
+    text-decoration:none;
+
+    font-weight:600;
+
+    transition:.3s ease;
+}
+
+.file-btn:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:
+        0 10px 20px rgba(22,163,74,.25);
+}
+
+/* =========================================
+   EMPTY STATE
+========================================= */
+
+.empty-state{
+
+    padding:60px 20px;
+
+    text-align:center;
+
+    color:#6b7280;
+
+    font-weight:600;
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media(max-width:768px){
+
+    .custom-table td,
+    .custom-table th{
+
+        white-space:nowrap;
+    }
+
+    .dashboard-card{
+
+        border-radius:22px;
+    }
+
+    .notesheet-card{
+
+        border-radius:22px;
+    }
 }
 
 </style>
+<!-- DataTables CSS -->
+<link rel="stylesheet"
+href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
+<link rel="stylesheet"
+href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<!-- DataTables -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<!-- Export Buttons -->
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+<script>
+
+$(document).ready(function () {
+
+    $('#notesheetTable').DataTable({
+
+        dom:
+            '<"d-flex justify-content-between align-items-center mb-3"fB>' +
+
+            'rt' +
+
+            '<"d-flex justify-content-between align-items-center mt-3"ip>',
+
+        buttons: [
+
+            {
+                extend: 'excel',
+                text: 'Export Excel'
+            },
+
+        
+            {
+                extend: 'print',
+                text: 'Print'
+            }
+
+        ],
+
+        pageLength: 10,
+
+        ordering: true,
+
+        searching: true,
+
+        responsive: true
+
+    });
+
+});
+
+</script>
+
+<style>
+
+/* ===================================================
+   TOP SECTION ALIGNMENT
+=================================================== */
+
+.dataTables_wrapper .dt-buttons {
+
+    float: right;
+    margin-bottom: 15px;
+
+}
+
+.dataTables_wrapper .dataTables_filter {
+
+    float: left;
+    margin-bottom: 15px;
+
+}
+
+/* ===================================================
+   SEARCH BOX
+=================================================== */
+
+.dataTables_wrapper .dataTables_filter input {
+
+    border: 2px solid #4f46e5;
+
+    border-radius: 10px;
+
+    padding: 8px 14px;
+
+    outline: none;
+
+    transition: 0.3s ease;
+
+    background: #f8fafc;
+
+    color: #111827;
+
+    font-weight: 500;
+
+}
+
+.dataTables_wrapper .dataTables_filter input:focus {
+
+    border-color: #7c3aed;
+
+    box-shadow: 0 0 10px rgba(124, 58, 237, 0.3);
+
+}
+
+/* ===================================================
+   BUTTONS
+=================================================== */
+
+.dt-button {
+
+    background: linear-gradient(
+        135deg,
+        #4f46e5,
+        #7c3aed
+    ) !important;
+
+    color: white !important;
+
+    border: none !important;
+
+    border-radius: 10px !important;
+
+    padding: 8px 18px !important;
+
+    margin-left: 8px !important;
+
+    font-weight: 600 !important;
+
+    transition: 0.3s ease !important;
+
+}
+
+.dt-button:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 8px 18px rgba(79, 70, 229, 0.3);
+
+}
+
+/* ===================================================
+   TABLE STYLING
+=================================================== */
+
+#notesheetTable {
+
+    border-radius: 14px;
+    overflow: hidden;
+
+}
+
+#notesheetTable thead {
+
+    background: linear-gradient(
+        135deg,
+        #1e293b,
+        #334155
+    );
+
+    color: white;
+
+}
+
+#notesheetTable tbody tr:hover {
+
+    background-color: #f1f5f9;
+
+    transition: 0.3s;
+
+}
+
+/* ===================================================
+   PAGINATION
+=================================================== */
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+
+    border-radius: 8px !important;
+
+    margin: 2px;
+
+    border: none !important;
+
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+
+    background: #4f46e5 !important;
+
+    color: white !important;
+
+}
+
+</style>
 {% endblock %}

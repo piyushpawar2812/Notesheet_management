@@ -166,17 +166,20 @@
                         <td>
                             {% if row.can_edit %}
                                 <span class="status-chip success"><i class="fa-solid fa-pen-to-square"></i> Editable</span>
-                            {% elif row.instance.forwarded_to %}
+                             {% endif %}
+                                {% comment %} {% elif row.instance.forwarded_to %}
                                 <span class="status-chip warning"><i class="fa-solid fa-lock"></i> In movement</span>
                             {% else %}
                                 <span class="status-chip"><i class="fa-solid fa-clock"></i> Draft</span>
-                            {% endif %}
+                            {% endif %} {% endcomment %}
                         </td>
-                        <td>
-                            <a href="{% if row.can_edit %}{% url 'edit_notesheet' row.instance.id %}{% else %}{% url 'open_sent_file' row.instance.id %}{% endif %}" class="btn btn-soft">
+                        <td>{% if row.can_edit %}
+                            <a href="{% url 'edit_notesheet' row.instance.id %}" class="btn btn-soft">
                                 Open
                             </a>
+                            {% endif %}
                         </td>
+                         
                     </tr>
                 {% empty %}
                     <tr>

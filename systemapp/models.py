@@ -4,6 +4,7 @@ import uuid
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from decimal import Decimal
 
 ALLOWED_ATTACHMENT_EXTENSIONS = {
     ".pdf",
@@ -78,6 +79,11 @@ class NoteSheet(models.Model):
 
     ('REJECTED', 'Rejected'),
 )
+    GENERAL_STATUS_CHOICE=[('PENDING', 'Pending'),
+
+    ('APPROVED', 'Approved'),
+
+    ('REJECTED', 'Rejected'),]
 
     notesheet_no = models.CharField(max_length=50, unique=True, editable=False)
     title = models.CharField(max_length=255)
@@ -95,11 +101,10 @@ class NoteSheet(models.Model):
     stock_quantity = models.PositiveIntegerField(null=True, blank=True)
     stock_entry_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    po_pdf = models.FileField(
-    upload_to='purchase_orders/',
-    null=True,
-    blank=True
-)
+    po_pdf = models.FileField(upload_to='purchase_orders/',null=True,blank=True)
+    finance_attachment = models.FileField(upload_to='notesheets/finance_attachments/',null=True,blank=True)
+    general_status = models.CharField(max_length=50, choices=GENERAL_STATUS_CHOICE, default='PENDING')
+    approved_by = models.ForeignKey('userapp.User',null=True,blank=True,on_delete=models.SET_NULL)
 
     class Meta:
         ordering = ['-created_at']
@@ -159,89 +164,162 @@ class NoteRemark(models.Model):
         return f"{self.notesheet.notesheet_no} - {self.action}"
 
 
+from decimal import Decimal
 
-class QuotationItem(models.Model):
+class VendorQuotation(models.Model):
 
     notesheet = models.ForeignKey(
-        NoteSheet,
+        'NoteSheet',
         on_delete=models.CASCADE,
-        related_name='quotation_items'
-    )
-
-    category=models.CharField(max_length=255,null=True,blank=True)
-    
-    item_name = models.CharField(max_length=255)
-
-    quantity = models.CharField(max_length=255,blank=True)
-
-    unit_price = models.DecimalField(
-        max_digits=12,
-        decimal_places=2
-    )
-    total_price= models.CharField(max_length=255,null=True,blank=True)
-    
-    vendor_name = models.CharField(max_length=255,null=True,blank=True)
-    
-    quote_price = models.DecimalField(
-    max_digits=12,
-    decimal_places=2,
-    default=0.00
-)
-    
-    gst_number = models.CharField(max_length=50,blank=True,null=True)
-    
-    quotation_file = models.FileField(upload_to='notesheets/quotations/', validators=[validate_note_attachment], null=True, blank=True)
-    
-    is_l1 = models.BooleanField(
-    default=False
-)
-    address = models.CharField(
-    max_length=500,
-    blank=True,
-    null=True
-)
-    
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    
-class PurchaseOrder(models.Model):
-    notesheet = models.OneToOneField(
-        NoteSheet,
-        on_delete=models.CASCADE,
-        related_name='purchase_order'
-    )
-
-    po_number = models.CharField(
-        max_length=100,
-        unique=True
+        related_name='vendors'
     )
 
     vendor_name = models.CharField(
         max_length=255
     )
 
+    gst_number = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True
+    )
+
+    address = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    quotation_file = models.FileField(
+        upload_to='notesheets/quotations/',
+        null=True,
+        blank=True
+    )
+
     total_amount = models.DecimalField(
         max_digits=12,
-        decimal_places=2
+        decimal_places=2,
+        default=0
     )
 
-    po_file = models.FileField(
-        upload_to='purchase_orders/'
+    is_winner = models.BooleanField(
+        default=False
     )
 
-    created_by = models.ForeignKey(
-        'userapp.User',
-        on_delete=models.CASCADE
-    )
-    
     created_at = models.DateTimeField(
         auto_now_add=True
     )
 
     def __str__(self):
 
-        return self.po_numbers   
+        return self.vendor_name
+
+
+class VendorQuotationItem(models.Model):
+
+    quotation = models.ForeignKey(
+        VendorQuotation,
+        on_delete=models.CASCADE,
+        related_name='items'
+    )
+
+    item_name = models.CharField(
+        max_length=255
+    )
+
+    quantity = models.IntegerField()
+
+    unit_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    quotation_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    total_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def save(self, *args, **kwargs):
+
+        self.total_price = (
+            Decimal(self.quantity)
+            * Decimal(self.quotation_price)
+        )
+
+        super().save(*args, **kwargs)
+
+
+    
+class PurchaseOrder(models.Model):
+
+    notesheet = models.OneToOneField(
+
+        NoteSheet,
+
+        on_delete=models.CASCADE,
+
+        related_name='purchase_order'
+
+    )
+
+    vendor = models.ForeignKey(
+
+        VendorQuotation,
+
+        on_delete=models.CASCADE,
+
+        related_name='purchase_orders', blank=True,
+        null=True
+
+    )
+
+    po_number = models.CharField(
+
+        max_length=100,
+
+        unique=True
+
+    )
+
+    total_amount = models.DecimalField(
+
+        max_digits=12,
+
+        decimal_places=2
+
+    )
+
+    po_file = models.FileField(
+
+        upload_to='purchase_orders/'
+
+    )
+
+    created_by = models.ForeignKey(
+
+        'userapp.User',
+
+        on_delete=models.CASCADE
+
+    )
+
+    created_at = models.DateTimeField(
+
+        auto_now_add=True
+
+    )
+
+    def __str__(self):
+
+        return self.po_number
 
 class InventoryItem(models.Model):
 
@@ -267,6 +345,13 @@ class InventoryItem(models.Model):
     added_date = models.DateField(null=True,blank=True)
 
     is_available = models.BooleanField(default=True)
+    
+    notesheet = models.ForeignKey(
+    NoteSheet,
+    on_delete=models.CASCADE,
+    null=True,
+    blank=True
+)
 
     def __str__(self):
         return self.item_name

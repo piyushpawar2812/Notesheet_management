@@ -197,18 +197,6 @@ django-filter>=2.4.0 # Advanced filtering (optional)
 
 ### New Tables
 
-```sql
--- QuotationItem: Line items in a quotation
-CREATE TABLE systemapp_quotationitem (
-    id BIGINT PRIMARY KEY,
-    quotation_id BIGINT FK,
-    item_name VARCHAR(255),
-    quantity INT,
-    unit_price DECIMAL(12,2),
-    total_price DECIMAL(12,2),
-    created_at TIMESTAMP
-);
-
 
 ### Modified Tables
 

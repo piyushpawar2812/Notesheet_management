@@ -1,0 +1,6 @@
+"id","login_id","password","officer_name","department","employee_no","designation","mobile_no","status","is_deleted","created_date","updated_date","role_id"
+"1","chairman","chairman","Chairman","Cchairman","12345","Chairman","123",True,False,"2026-05-20 20:35:21.904812+05:30","2026-05-20 20:35:21.904812+05:30","3"
+"2","purchase","purchase","Purchase Officer","Purchase Officer","1234","Purchase","123",True,False,"2026-05-20 20:36:38.59785+05:30","2026-05-20 20:36:38.59785+05:30","5"
+"3","finance","finance","Finance","Finance","123","Finance","1234",True,False,"2026-05-20 20:37:31.298137+05:30","2026-05-20 20:37:31.298137+05:30","6"
+"5","hod","hod1","HOD","Hod","1234","HOD","1234",True,False,"2026-05-21 15:13:37.586694+05:30","2026-05-21 15:13:37.586694+05:30","2"
+"4","admin","admin","Exective admin","Admin","1234","Admin","123",True,False,"2026-05-20 20:38:01.990314+05:30","2026-05-21 15:13:57.314445+05:30","1"
