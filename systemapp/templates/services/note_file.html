@@ -978,6 +978,7 @@ Title-{{ note.title }}{% endblock %}
                        {% if not can_edit %}disabled{% endif %}>
 
             </div>
+{% if note.purpose.purpose_name != "purchase" %}
 <!-- GENERAL STATUS -->
 
     <div class="mb-3">
@@ -1014,7 +1015,7 @@ Title-{{ note.title }}{% endblock %}
         </select>
 
     </div>
-
+{% endif %}
             <div class="col-12 d-flex justify-content-end">
 
                 <button type="submit"
