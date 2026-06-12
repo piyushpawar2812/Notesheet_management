@@ -13,9 +13,11 @@ def login_view(request):
             request.session['user_id'] = user.id #store in session
             request.session['officer_name'] = user.officer_name
             request.session['role'] = user.role.role_name
-
-
-            return redirect('dashboard')
+            
+            if user.role.role_name in ['admin', 'chairman']:
+                return redirect('dashboard_view')
+            else:
+                return redirect('dashboard')
 
         except User.DoesNotExist:
             return render(request, 'login.html', {'error': 'Invalid credentials'})
