@@ -236,16 +236,21 @@
                     <p>
                         Total : ₹ {{ vendor.total_amount }}
                     </p>
-                    Uploaded File
-                    <a href="{{ vendor.quotation_file.url }}"
-                                   target="_blank"
-                                   class="file-btn">
 
-                                    <i class="fa-solid fa-paperclip"></i>
+Uploaded File:
 
-                                    View File
-
-                </a>
+{% if vendor.quotation_file %}
+    <a href="{{ vendor.quotation_file.url }}"
+       target="_blank"
+       class="file-btn">
+        <i class="fa-solid fa-paperclip"></i>
+        View File
+    </a>
+{% else %}
+    <span class="text-muted">
+        No File Uploaded
+    </span>
+{% endif %}
 
                 </div>
                 {% if request.session.role|lower == "purchase" %}
