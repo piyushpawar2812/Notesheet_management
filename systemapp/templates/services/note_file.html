@@ -977,6 +977,7 @@ Title-{{ note.title }}{% endblock %}
                        {% if not can_edit %}disabled{% endif %}>
 
             </div>
+{% if request.session.role|lower == "chairman" or request.session.role|lower == "admin" or request.session.role|lower == "director" %}
 {% if note.purpose.purpose_name != "purchase" %}
 <!-- GENERAL STATUS -->
 
@@ -1014,6 +1015,7 @@ Title-{{ note.title }}{% endblock %}
         </select>
 
     </div>
+{% endif %}
 {% endif %}
             <div class="col-12 d-flex justify-content-end">
 
