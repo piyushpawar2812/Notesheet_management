@@ -766,7 +766,7 @@ Title-{{ note.title }}{% endblock %}
 
             <div class="remark-text-area">
             {% if item.remark_text %}
-                  <h5>#Note {{ forloop.counter }}-{{ item.remark_text|safe }}</h5>
+                  #Note {{ forloop.counter }}-{{ item.remark_text|safe }}
                 {% else %}
 
                     <span class="text-secondary">
