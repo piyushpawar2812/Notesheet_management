@@ -39,7 +39,20 @@
                         <td>{{ note.department.department_name|default:"Not assigned" }}</td>
                         
                         <td>{{ note.remarks.last.created_at|date:"d M Y, h:i A"|default:note.created_at }}</td>
-                        <td><a href="{% url 'edit_notesheet' note.id %}" class="btn btn-brand">Open</a></td>
+                
+<td>
+
+    {% if note.can_edit %}
+        <a href="{% url 'edit_notesheet' note.id %}" class="btn btn-brand">
+            Open
+        </a>
+    {% else %}
+        <a href="{% url 'open_sent_file' note.id %}" class="btn btn-brand">
+            Open
+        </a>
+    {% endif %}
+
+</td>
                     </tr>
                 {% empty %}
                     <tr>
