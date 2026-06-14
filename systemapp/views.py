@@ -808,85 +808,44 @@ def build_note_context(note, user):
     }
 
 
+
 def inbox(request):
-
     user = get_session_user(request)
-
     if not user:
-
         return redirect('login')
-
-    role_name = (
-        user.role.role_name.lower()
-    )
+    
+    role_name = (user.role.role_name.lower())
 
     # =====================================
     # CHAIRMAN / ADMIN
     # =====================================
 
     if role_name in ['chairman', 'admin']:
-
-        notes = (
-
-            NoteSheet.objects.all()
-
-            .select_related(
+        notes = (NoteSheet.objects.all().select_related(
                 'department',
                 'created_by',
                 'forwarded_to'
-            )
-
-            .prefetch_related(
+            ).prefetch_related(
                 'remarks'
-            )
-
-            .order_by('-created_at')
-
-        )
+            ).order_by('-created_at'))
 
     # =====================================
     # NORMAL USER
     # =====================================
 
     else:
-
-        notes = (
-
-            NoteSheet.objects.filter(
-
-                forwarded_to=user
-
-            )
-
-            .select_related(
+        notes = (NoteSheet.objects.filter(forwarded_to=user) .select_related(
                 'department',
                 'created_by',
                 'forwarded_to'
-            )
-
-            .prefetch_related(
+            ) .prefetch_related(
                 'remarks'
-            )
+            ).order_by('-created_at') )
 
-            .order_by('-created_at')
+    for note in notes:
+        note.can_edit = note.can_user_edit(user)
 
-        )
-
-    return render(
-
-        request,
-
-        'services/inbox.html',
-
-        {
-
-            'notes': notes,
-
-            'current_user': user
-
-        }
-
-    )
+    return render( request,'services/inbox.html', {'notes': notes,'current_user': user} )
 
 
 def note_action(request, pk):
