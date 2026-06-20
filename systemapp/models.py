@@ -45,6 +45,7 @@ class Purpose(models.Model):
     
 class Collage(models.Model):
     collage_name = models.CharField(max_length=50, unique=True)
+    collage_code = models.CharField(max_length=20, unique=True,blank=True,null=True)
 
     def __str__(self):
         return self.collage_name
@@ -109,10 +110,24 @@ class NoteSheet(models.Model):
     class Meta:
         ordering = ['-created_at']
 
+    
     def save(self, *args, **kwargs):
         if not self.notesheet_no:
-            self.notesheet_no = f"REC-{uuid.uuid4().hex[:8].upper()}"
-        super().save(*args, **kwargs)
+            college_code = self.created_by.collage.collage_code
+            year = timezone.now().year
+
+            last_note = NoteSheet.objects.filter(
+                notesheet_no__startswith=f"{college_code}/{year}/"
+            ).order_by("-id").first()
+
+            if last_note:
+                sequence = int(last_note.notesheet_no.split("/")[-1]) + 1
+            else:
+                sequence = 1
+
+            self.notesheet_no = f"{college_code}/{year}/{sequence:04d}"
+
+            super().save(*args, **kwargs)
 
     def current_holder(self):
         return self.forwarded_to or self.created_by
