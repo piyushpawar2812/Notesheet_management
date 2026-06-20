@@ -1,5 +1,6 @@
 
 from django.db import models
+from systemapp.models import Collage
 
 class RoleMaster(models.Model):
     role_name = models.CharField(max_length=100)
@@ -21,6 +22,9 @@ class User(models.Model):
     
     officer_name = models.CharField(max_length=100,blank=True)
     department=models.CharField(max_length=100,blank=True)
+#NEW_added
+    collage = models.ForeignKey('systemapp.Collage', on_delete=models.CASCADE,blank=True,null=True)
+
     employee_no = models.BigIntegerField(null=True, blank=True)
     designation = models.CharField(max_length=100,blank=True)
     mobile_no = models.BigIntegerField(null=True, blank=True) 
