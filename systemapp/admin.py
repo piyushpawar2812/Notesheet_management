@@ -7,6 +7,7 @@ from userapp.models import (
 
 from systemapp.models import (
     Department,
+Collage,
     Purpose,
     NoteSheet,
     NoteRemark,
@@ -69,6 +70,20 @@ class DepartmentAdmin(admin.ModelAdmin):
 
     search_fields = (
         'department_name',
+    )
+
+
+@admin.register(Collage)
+class CollageAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'collage_name',
+        'collage_code',
+    )
+
+    search_fields = (
+        'collage_name',
+         'collage_code',
     )
 
 
