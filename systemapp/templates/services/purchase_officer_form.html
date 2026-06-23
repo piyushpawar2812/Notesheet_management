@@ -1,461 +1,685 @@
-
-{% if note.procurement_status == "QUOTATION_REVERT" %}
-
-<div class="alert alert-danger">
-
-    <strong>
-        Chairman reverted quotation.
-    </strong>
-
-    Please update vendor quotation and resend.
-
-</div>
-
-{% endif %}
-
-
-<!-- ===================================== -->
-<!-- ADD VENDOR QUOTATION -->
-<!-- ===================================== -->
-{% if request.session.role|lower == "purchase" %}
-<div class="card mt-4">
-
-    <div class="card-header bg-primary text-white">
-
-        Add Vendor Quotation
-
-    </div>
-
-    <div class="card-body">
-
-        <form method="POST"
-              action="{% url 'add_quotation' note.id %}"
-              enctype="multipart/form-data">
-
-            {% csrf_token %}
-
-            <div class="row">
-
-                <!-- VENDOR NAME -->
-                <div class="col-md-6 mb-3">
-
-                    <label>Vendor Name</label>
-
-                    <input type="text"
-                           name="vendor_name"
-                           class="form-control"
-                           required>
-
-                </div>
-
-                <!-- GST -->
-                <div class="col-md-6 mb-3">
-
-                    <label>GST Number</label>
-
-                    <input type="text"
-                           name="gst_number"
-                           class="form-control">
-
-                </div>
-
-                <!-- ADDRESS -->
-                <div class="col-12 mb-3">
-
-                    <label>Address</label>
-
-                    <textarea name="address"
-                              class="form-control"></textarea>
-
-                </div>
-
-                <!-- FILE -->
-                <div class="col-12 mb-3">
-
-                    <label>Quotation File</label>
-
-                    <input type="file"
-                           name="quotation_file"
-                           class="form-control">
-
-                </div>
-
-            </div>
-
-            <!-- ===================================== -->
-            <!-- ITEMS TABLE -->
-            <!-- ===================================== -->
-
-            <table class="table table-bordered"
-                   id="items-table">
-
-                <thead class="table-dark">
-
-                    <tr>
-
-                        <th>Item Name</th>
-
-                        <th>Quantity</th>
-
-                        <th>Unit Price</th>
-
-                        <th>Quotation Price</th>
-
-                        <th>Total</th>
-
-                        <th>Action</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    <tr>
-
-                        <td>
-                            <input type="text"
-                                   name="item_name[]"
-                                   class="form-control"
-                                   required>
-                        </td>
-
-                        <td>
-                            <input type="number"
-                                   name="quantity[]"
-                                   class="form-control qty"
-                                   required>
-                        </td>
-
-                        <td>
-                            <input type="number"
-                                   step="0.01"
-                                   name="unit_price[]"
-                                   class="form-control"
-                                   required>
-                        </td>
-
-                        <td>
-                            <input type="number"
-                                   step="0.01"
-                                   name="quotation_price[]"
-                                   class="form-control quote-price"
-                                   required>
-                        </td>
-
-                        <td>
-                            <input type="text"
-                                   class="form-control total-price"
-                                   readonly>
-                        </td>
-
-                        <td>
-
-                            <button type="button"
-                                    class="btn btn-danger remove-row">
-
-                                Remove
-
-                            </button>
-
-                        </td>
-
-                    </tr>
-
-                </tbody>
-
-            </table>
-
-            <!-- ===================================== -->
-            <!-- BUTTONS -->
-            <!-- ===================================== -->
-
-            <button type="button"
-                    id="add-item-btn"
-                    class="btn btn-info">
-
-                Add Item
-
-            </button>
-
-            <button type="submit"
-                    class="btn btn-success">
-
-                Save Vendor Quotation
-
-            </button>
-
-        </form>
-
-    </div>
-
-</div>
-{% endif %}
-
-<!-- ===================================== -->
-<!-- SHOW ALL VENDORS -->
-<!-- ===================================== -->
-<div class="card mt-4">
-
-    <div class="card-header bg-dark text-white">
-
-        Vendor Quotations
-
-    </div>
-
-    <div class="card-body">
-
-        {% for vendor in note.vendors.all %}
-
-        <div class="border p-3 mb-4 rounded">
-
-            <div class="d-flex justify-content-between">
-
-                <div>
-
-                    <h5>
-
-                        Vendor Name: {{ vendor.vendor_name }}
-
-                        {% if vendor.is_winner %}
-
-                        <span class="badge bg-success">
-
-                            Winner
-
-                        </span>
-
-                        {% endif %}
-
-                    </h5>
-
-                    <p>
-                        GST : {{ vendor.gst_number }}
-                    </p>
-
-                    <p>
-                        Total : ₹ {{ vendor.total_amount }}
-                    </p>
-
-Uploaded File:
-
-{% if vendor.quotation_file %}
-    <a href="{{ vendor.quotation_file.url }}"
-       target="_blank"
-       class="file-btn">
-        <i class="fa-solid fa-paperclip"></i>
-        View File
-    </a>
-{% else %}
-    <span class="text-muted">
-        No File Uploaded
-    </span>
-{% endif %}
-
-                </div>
-                {% if request.session.role|lower == "purchase" %}
-                <div>
-
-                    <a href="{% url 'select_vendor_winner' vendor.id %}"
-                       class="btn btn-success">
-
-                        ✔ Select Winner
-
-                    </a>
-
-                </div>
-                {% endif %}
-       
-
-         </div>
-
-            <table class="table table-bordered mt-3">
-
-                <thead class="table-light">
-
-                    <tr>
-
-                        <th>Item</th>
-
-                        <th>Qty</th>
-
-                        <th>Unit Price</th>
-
-                        <th>Quotation Price</th>
-
-                        <th>Total</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    {% for item in vendor.items.all %}
-
-                    <tr>
-
-                        <td>
-                            {{ item.item_name }}
-                        </td>
-
-                        <td>
-                            {{ item.quantity }}
-                        </td>
-
-                        <td>
-                            ₹ {{ item.unit_price }}
-                        </td>
-
-                        <td>
-                            ₹ {{ item.quotation_price }}
-                        </td>
-
-                        <td>
-                            ₹ {{ item.total_price }}
-                        </td>
-
-                    </tr>
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-        {% empty %}
-
-        <div class="alert alert-warning">
-
-            No vendor quotations added.
-
-        </div>
-
-        {% endfor %}
-
-    </div>
-
-
+<style>
+    /* Minimalist styles */
+    .minimal-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        margin-bottom: 12px;
+        background: #fff;
+    }
     
-<hr>
-
-{% if request.session.role|lower == "purchase" %}
-<form method="POST"
-      action="{% url 'send_quotation_to_chairman' note.id %}">
-
-    {% csrf_token %}
-
-    <button class="btn btn-dark">
-
-        Send To Chairman
-
-    </button>
-
-</form>
-
+    .minimal-header {
+        padding: 10px 15px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e0e0e0;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 500;
+        font-size: 14px;
+    }
+    
+    .minimal-header:hover {
+        background: #f1f3f5;
+    }
+    
+    .minimal-body {
+        padding: 15px;
+        display: none;
+    }
+    
+    .minimal-body.active {
+        display: block;
+    }
+    
+    .minimal-body form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: flex-end;
+    }
+    
+    .minimal-body .field-group {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 120px;
+    }
+    
+    .minimal-body .field-group label {
+        font-size: 11px;
+        font-weight: 500;
+        color: #666;
+        margin-bottom: 2px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    
+    .minimal-body .field-group input,
+    .minimal-body .field-group select {
+        border: 1px solid #ccc9c9;
+        border-radius: 3px;
+        padding: 5px 8px;
+        font-size: 13px;
+        width: 100%;
+        background: #ffffff;
+        transition: all 0.2s;
+    }
+    
+    .minimal-body .field-group input:focus,
+    .minimal-body .field-group select:focus {
+        border-color: #4a90d9;
+        background: #fff;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.1);
+    }
+    
+    .minimal-btn {
+        padding: 5px 14px;
+        border: none;
+        border-radius: 3px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: #f0f0f0;
+        color: #aaaaaa;
+        height: 32px;
+        white-space: nowrap;
+    }
+    
+    .minimal-btn-primary {
+        background: #4a90d9;
+        color: white;
+    }
+    
+    .minimal-btn-primary:hover {
+        background: #357abd;
+    }
+    
+    .minimal-btn-success {
+        background: #28a745;
+        color: white;
+    }
+    
+    .minimal-btn-success:hover {
+        background: #218838;
+    }
+    
+    .minimal-btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .minimal-btn-danger:hover {
+        background: #c82333;
+    }
+    
+    .minimal-btn-info {
+        background: #17a2b8;
+        color: white;
+    }
+    
+    .minimal-btn-info:hover {
+        background: #138496;
+    }
+    
+    .minimal-btn-dark {
+        background: #343a40;
+        color: white;
+    }
+    
+    .minimal-btn-dark:hover {
+        background: #23272b;
+    }
+    
+    /* Disabled button styles */
+    .minimal-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed !important;
+        pointer-events: none;
+    }
+    
+    .minimal-btn:disabled:hover {
+        opacity: 0.5;
+        background: inherit;
+    }
+    
+    .minimal-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        margin-top: 10px;
+    }
+    
+    .minimal-table th {
+        background: #f8f9fa;
+        border: 1px solid #b3aeae;
+        padding: 6px 8px;
+        text-align: left;
+        font-weight: 500;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        color: #666;
+    }
+    
+    .minimal-table td {
+        border: 1px solid #666;
+        padding: 4px 6px;
+        vertical-align: middle;
+    }
+    
+    .minimal-table input {
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        padding: 4px 6px;
+        font-size: 12px;
+        width: 100%;
+        background: #fdfdfd;
+    }
+    
+    .minimal-table input:focus {
+        border-color: #4a90d9;
+        background: #fff;
+        outline: none;
+    }
+    
+    .minimal-table input:disabled {
+        background: #f5f5f5 !important;
+        cursor: not-allowed !important;
+        opacity: 0.7;
+    }
+    
+    .vendor-item {
+        border: 1px solid #e8e8e8;
+        border-radius: 4px;
+        padding: 12px;
+        margin-bottom: 10px;
+    }
+    
+    .vendor-item.vendor-locked {
+        background: #f8f9fa;
+        opacity: 0.85;
+    }
+    
+    .vendor-item .vendor-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .vendor-item .vendor-info {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        font-size: 13px;
+    }
+    
+    .vendor-item .vendor-info span {
+        color: #666;
+    }
+    
+    .badge-minimal {
+        background: #28a745;
+        color: white;
+        padding: 1px 8px;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 500;
+    }
+    
+    .badge-locked {
+        background: #6c757d;
+        color: white;
+        padding: 1px 8px;
+        border-radius: 10px;
+        font-size: 10px;
+        font-weight: 500;
+    }
+    
+    .file-link {
+        color: #4a90d9;
+        text-decoration: none;
+        font-size: 13px;
+    }
+    
+    .file-link:hover {
+        text-decoration: underline;
+    }
+    
+    .toggle-icon {
+        font-size: 18px;
+        transition: transform 0.3s;
+        display: inline-block;
+    }
+    
+    .toggle-icon.rotated {
+        transform: rotate(180deg);
+    }
+    
+    .alert-minimal {
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin-bottom: 12px;
+        font-size: 13px;
+    }
+    
+    .alert-warning-minimal {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        color: #856404;
+    }
+    
+    .alert-info-minimal {
+        background: #e9ecef;
+        border: 1px solid #6c757d;
+        color: #495057;
+    }
+    
+    .alert-danger-minimal {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+    
+    .alert-minimal strong {
+        font-weight: 600;
+    }
+    
+    /* Disabled form overlay */
+    .form-disabled {
+        position: relative;
+        opacity: 0.5;
+        pointer-events: none;
+    }
+    
+    .form-disabled input,
+    .form-disabled select,
+    .form-disabled textarea,
+    .form-disabled button {
+        pointer-events: none;
+    }
+    
+    .mt-2 { margin-top: 8px; }
+    .mt-3 { margin-top: 12px; }
+    .mb-2 { margin-bottom: 8px; }
+    .d-flex { display: flex; }
+    .gap-2 { gap: 8px; }
+    .flex-wrap { flex-wrap: wrap; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .text-muted { color: #6c757d; }
+    .text-center { text-align: center; }
+</style>
+<!-- Alert for reverted quotation -->
+{% if note.procurement_status == "QUOTATION_REVERT" %}
+<div class="alert-minimal alert-danger-minimal">
+    <strong>⚠️ Chairman reverted quotation.</strong> Please update vendor quotation and resend.
 </div>
 {% endif %}
 
-<!-- ===================================== -->
-<!-- JAVASCRIPT -->
-<!-- ===================================== -->
+<!-- ADD VENDOR QUOTATION SECTION -->
+{% if request.session.role|lower == "purchase" %}
+<div class="minimal-card">
+    <div class="minimal-header" onclick="toggleSection('vendorForm')">
+        <span>+ Add Vendor Quotation</span>
+        <span class="toggle-icon" id="vendorFormIcon">▾</span>
+    </div>
+    <div class="minimal-body active" id="vendorForm">
+        
+        {% if note.procurement_status == "QUOTATION_PENDING_CHAIRMAN" or note.procurement_status == "QUOTATION_APPROVED" %}
+        <!-- 🔒 LOCKED FORM - Data दिखेगा लेकिन डिसेबल होगा -->
+        <div class="alert-minimal alert-info-minimal">
+            🔒 <strong>Form Locked:</strong> Quotation has been sent to Chairman. You cannot add new vendors.
+        </div>
+        <div class="form-disabled">
+            <div class="field-group">
+                <label>Vendor Name</label>
+                <input type="text" value="Form is locked - View Only" disabled>
+            </div>
+            <div class="field-group">
+                <label>GST</label>
+                <input type="text" value="Form is locked - View Only" disabled>
+            </div>
+            <div class="field-group">
+                <label>Address</label>
+                <input type="text" value="Form is locked - View Only" disabled>
+            </div>
+            <div class="field-group">
+                <label>Quotation File</label>
+                <input type="file" disabled>
+            </div>
+            
+            <div style="width: 100%; margin-top: 8px;">
+                <table class="minimal-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Quote Price</th>
+                            <th>Total</th>
+                            <th style="width: 70px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="text" value="Locked" disabled></td>
+                            <td><input type="number" value="0" disabled></td>
+                            <td><input type="number" value="0" disabled></td>
+                            <td><input type="number" value="0" disabled></td>
+                            <td><input type="text" value="0" disabled></td>
+                            <td>
+                                <button type="button" class="minimal-btn minimal-btn-danger" disabled>✕</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="d-flex gap-2" style="margin-top: 8px;">
+                    <button type="button" class="minimal-btn minimal-btn-info" disabled>+ Add Item</button>
+                    <button type="submit" class="minimal-btn minimal-btn-success" disabled>Save (Locked)</button>
+                </div>
+            </div>
+        </div>
+        
+        {% else %}
+        <!-- ✅ ACTIVE FORM -->
+        <form method="POST" action="{% url 'add_quotation' note.id %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="field-group">
+                <label>Vendor Name</label>
+                <input type="text" name="vendor_name" required>
+            </div>
+            <div class="field-group">
+                <label>GST</label>
+                <input type="text" name="gst_number">
+            </div>
+            <div class="field-group">
+                <label>Address</label>
+                <input type="text" name="address">
+            </div>
+            <div class="field-group">
+                <label>Quotation File</label>
+                <input type="file" name="quotation_file" style="padding: 3px 8px;">
+            </div>
+            
+            <div style="width: 100%; margin-top: 8px;">
+                <table class="minimal-table" id="items-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Quote Price</th>
+                            <th>Total</th>
+                            <th style="width: 70px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="text" name="item_name[]" required></td>
+                            <td><input type="number" name="quantity[]" class="qty" required></td>
+                            <td><input type="number" step="0.01" name="unit_price[]" required></td>
+                            <td><input type="number" step="0.01" name="quotation_price[]" class="quote-price" required></td>
+                            <td><input type="text" class="total-price" readonly style="background: #f5f5f5;"></td>
+                            <td>
+                                <button type="button" class="minimal-btn minimal-btn-danger remove-row" style="padding: 2px 10px; font-size: 11px;">✕</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="d-flex gap-2" style="margin-top: 8px;">
+                    <button type="button" id="add-item-btn" class="minimal-btn minimal-btn-info">+ Add Item</button>
+                    <button type="submit" class="minimal-btn minimal-btn-success">Save</button>
+                </div>
+            </div>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- ✅ VENDOR QUOTATIONS LIST SECTION - हमेशा दिखेगा -->
+<div class="minimal-card">
+    <div class="minimal-header" onclick="toggleSection('vendorList')">
+        <span>📋 Vendor Details</span>
+        <span class="toggle-icon rotated" id="vendorListIcon">▾</span>
+    </div>
+    <div class="minimal-body active" id="vendorList">
+        
+        <!-- Locked Warning -->
+        {% if note.procurement_status == "QUOTATION_PENDING_CHAIRMAN" or note.procurement_status == "QUOTATION_APPROVED" %}
+        <div class="alert-minimal alert-warning-minimal">
+            ⚠️ <strong>Quotation Locked:</strong> Sent to Chairman. View-only mode. You cannot modify or add new vendors.
+        </div>
+        {% endif %}
+        
+        <!-- ✅ VENDORS LIST - हमेशा दिखेगा -->
+        {% for vendor in note.vendors.all %}
+        <div class="vendor-item {% if note.procurement_status == 'QUOTATION_PENDING_CHAIRMAN' or note.procurement_status == 'QUOTATION_APPROVED' %}vendor-locked{% endif %}">
+            <div class="vendor-header">
+                <div class="vendor-info">
+                    <strong>{{ forloop.counter }}.</strong>
+                    Vendor Name-<strong>{{ vendor.vendor_name }}</strong>
+                    {% if vendor.is_winner %}
+                    <span class="badge-minimal">🏆 Winner</span>
+                    {% endif %}
+                    <span>GST: {{ vendor.gst_number|default:"N/A" }}</span>
+                    <span>Total: ₹ {{ vendor.total_amount }}</span>
+                    <span>
+                        {% if vendor.quotation_file %}
+                        <a href="{{ vendor.quotation_file.url }}" target="_blank" class="file-link">📎 View File</a>
+                        {% else %}
+                        <span class="text-muted">No File</span>
+                        {% endif %}
+                    </span>
+                    {% if note.procurement_status == "QUOTATION_PENDING_CHAIRMAN" or note.procurement_status == "QUOTATION_APPROVED" %}
+                    <span class="badge-locked">🔒 Locked</span>
+                    {% endif %}
+                </div>
+                
+                <!-- ✅ SELECT WINNER BUTTON - सिर्फ अनलॉक होने पर -->
+                {% if request.session.role|lower == "purchase" %}
+                    {% if note.procurement_status == "QUOTATION_PENDING_CHAIRMAN" or note.procurement_status == "QUOTATION_APPROVED" %}
+                        <button class="minimal-btn minimal-btn-success" disabled style="font-size: 11px;">
+                            ✔ Select Winner (Locked)
+                        </button>
+                    {% else %}
+                        <a href="{% url 'select_vendor_winner' vendor.id %}" class="minimal-btn minimal-btn-success" style="font-size: 11px;">
+                            ✔ Select Winner
+                        </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+            
+            <!-- ✅ ITEMS TABLE - हमेशा दिखेगा -->
+            <table class="minimal-table" style="margin-top: 8px;">
+                <thead>
+                    <tr>
+                        <th>Sr.No.</th>
+                        <th>Item</th>
+                        <th>Qty</th>
+                        <th>Unit Price</th>
+                        <th>Quote Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in vendor.items.all %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td><strong>{{ item.item_name }}</strong></td>
+                        <td>{{ item.quantity }}</td>
+                        <td>₹ {{ item.unit_price }}</td>
+                        <td>₹ {{ item.quotation_price }}</td>
+                        <td>₹ {{ item.total_price }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No items added</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% empty %}
+        <div style="padding: 15px; text-align: center; color: #6c757d; font-size: 13px;">
+            No vendor quotations added.
+        </div>
+        {% endfor %}
+        
+        <!-- ✅ SEND TO CHAIRMAN BUTTON -->
+        {% if request.session.role|lower == "purchase" %}
+            {% if note.procurement_status == "QUOTATION_PENDING_CHAIRMAN" or note.procurement_status == "QUOTATION_APPROVED" %}
+                <div style="margin-top: 12px;">
+                    <button class="minimal-btn minimal-btn-dark" disabled style="width: 100%;">
+                        🔒 Sent to Chairman
+                    </button>
+                    <small style="display: block; margin-top: 5px; color: #6c757d; font-size: 12px; text-align: center;">
+                        Quotation is with Chairman for approval
+                    </small>
+                </div>
+            {% else %}
+                <form method="POST" action="{% url 'send_quotation_to_chairman' note.id %}" id="sendToChairmanForm" style="margin-top: 12px;">
+                    {% csrf_token %}
+                    <button type="submit" class="minimal-btn minimal-btn-dark" style="width: 100%;" id="sendToChairmanBtn">
+                        🚀 Send To Chairman
+                    </button>
+                </form>
+                <small style="display: block; margin-top: 5px; color: #6c757d; font-size: 12px; text-align: center;">
+                    Note: Sending to Chairman will lock all vendor details
+                </small>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
 <script>
-$('#add-item-btn').click(function () {
+// Toggle sections
+function toggleSection(id) {
+    const body = document.getElementById(id);
+    const icon = document.getElementById(id + 'Icon');
+    
+    if (body) {
+        body.classList.toggle('active');
+        if (icon) {
+            icon.classList.toggle('rotated');
+        }
+    }
+}
 
+// Add item row
+$('#add-item-btn').click(function() {
     $('#items-table tbody').append(`
-
-    <tr>
-
-        <td>
-            <input type="text"
-                   name="item_name[]"
-                   class="form-control"
-                   required>
-        </td>
-
-        <td>
-            <input type="number"
-                   name="quantity[]"
-                   class="form-control qty"
-                   required>
-        </td>
-
-        <td>
-            <input type="number"
-                   step="0.01"
-                   name="unit_price[]"
-                   class="form-control"
-                   required>
-        </td>
-
-        <td>
-            <input type="number"
-                   step="0.01"
-                   name="quotation_price[]"
-                   class="form-control quote-price"
-                   required>
-        </td>
-
-        <td>
-            <input type="text"
-                   class="form-control total-price"
-                   readonly>
-        </td>
-
-        <td>
-
-            <button type="button"
-                    class="btn btn-danger remove-row">
-
-                Remove
-
-            </button>
-
-        </td>
-
-    </tr>
-
+        <tr>
+            <td><input type="text" name="item_name[]" required></td>
+            <td><input type="number" name="quantity[]" class="qty" required></td>
+            <td><input type="number" step="0.01" name="unit_price[]" required></td>
+            <td><input type="number" step="0.01" name="quotation_price[]" class="quote-price" required></td>
+            <td><input type="text" class="total-price" readonly style="background: #f5f5f5;"></td>
+            <td>
+                <button type="button" class="minimal-btn minimal-btn-danger remove-row" style="padding: 2px 10px; font-size: 11px;">✕</button>
+            </td>
+        </tr>
     `);
-
 });
 
-
-$(document).on(
-    'click',
-    '.remove-row',
-    function () {
-
+// Remove row
+$(document).on('click', '.remove-row', function() {
+    if ($('#items-table tbody tr').length > 1) {
         $(this).closest('tr').remove();
-
+    } else {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Cannot Remove',
+            text: 'You need at least one item.',
+            confirmButtonText: 'OK'
+        });
     }
-);
+});
 
+// Calculate total
+$(document).on('keyup change', '.qty, .quote-price', function() {
+    let row = $(this).closest('tr');
+    let qty = parseFloat(row.find('.qty').val()) || 0;
+    let price = parseFloat(row.find('.quote-price').val()) || 0;
+    row.find('.total-price').val((qty * price).toFixed(2));
+});
 
-$(document).on(
-    'keyup change',
-    '.qty, .quote-price',
-    function () {
+// =============================================
+// SEND TO CHAIRMAN
+// =============================================
+$(document).ready(function() {
+    $('#sendToChairmanForm').off('submit').on('submit', function(e) {
+        e.preventDefault();
+        
+        Swal.fire({
+            title: 'Send to Chairman?',
+            text: 'This will lock all vendor details and send the quotation to Chairman for approval.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#343a40',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, send it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $('#sendToChairmanForm')[0].submit();
+            }
+        });
+        
+        return false;
+    });
+});
 
-        let row = $(this).closest('tr');
-
-        let qty = parseFloat(
-            row.find('.qty').val()
-        ) || 0;
-
-        let price = parseFloat(
-            row.find('.quote-price').val()
-        ) || 0;
-
-        let total = qty * price;
-
-        row.find('.total-price').val(
-            total.toFixed(2)
-        );
-
+// =============================================
+// DJANGO MESSAGES
+// =============================================
+{% if messages %}
+    if (!sessionStorage.getItem('messagesShown')) {
+        sessionStorage.setItem('messagesShown', 'true');
+        
+        {% for message in messages %}
+            Swal.fire({
+                icon: '{% if message.tags == "error" %}error{% elif message.tags == "success" %}success{% elif message.tags == "warning" %}warning{% else %}info{% endif %}',
+                title: '{{ message.tags|title }}',
+                text: '{{ message }}',
+                confirmButtonText: 'OK',
+                timer: 5000,
+                timerProgressBar: true
+            });
+        {% endfor %}
+        
+        setTimeout(function() {
+            sessionStorage.removeItem('messagesShown');
+        }, 1000);
     }
-);
+{% endif %}
 
+// =============================================
+// PREVENT LOCKED FORM SUBMISSION
+// =============================================
+$(document).ready(function() {
+    $('form').on('submit', function(e) {
+        if ($(this).find('input:disabled').length > 0) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Locked',
+                text: 'This quotation is locked and cannot be modified.',
+                confirmButtonText: 'OK'
+            });
+            return false;
+        }
+    });
+});
 </script>

@@ -1,212 +1,337 @@
-
 {% if note.procurement_status == "INVENTORY_PENDING" %}
 
-<div class="card mt-4 shadow-sm">
-
-    <div class="card-header bg-success text-white">
-
-        <h5 class="mb-0">
-
-            Inventory Entry / Material Received
-
-        </h5>
-
+<!-- INVENTORY ENTRY SECTION -->
+<div class="minimal-card">
+    <div class="minimal-header" onclick="toggleSection('inventoryForm')">
+        <span>📦 Inventory Entry / Material Received</span>
+        <span class="toggle-icon rotated" id="inventoryFormIcon">▾</span>
     </div>
-
-    <div class="card-body">
-
-        <form method="POST"
-              action="{% url 'inventory_received' note.id %}">
-
+    <div class="minimal-body active" id="inventoryForm">
+        
+        <form method="POST" action="{% url 'inventory_received' note.id %}">
             {% csrf_token %}
-
-            <!-- ===================================== -->
-            <!-- WINNER VENDOR -->
-            <!-- ===================================== -->
-
-            {% with winner=note.vendors.filter.is_winner %}
-
+            
+            <!-- ✅ WINNER VENDOR - TOP पर -->
+            {% with winner_vendor=note.vendors.all|dictsort:"is_winner"|last %}
+                {% if winner_vendor and winner_vendor.is_winner %}
+                    
+                    <!-- WINNER VENDOR INFO -->
+                    <div style="background: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; padding: 12px; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                            <div>
+                                <strong style="font-size: 16px;">🏆 Winner Vendor:</strong>
+                                <span style="font-size: 16px; font-weight: 600; color: #155724;">{{ winner_vendor.vendor_name }}</span>
+                            </div>
+                            <div>
+                                <span style="background: #28a745; color: white; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 500;">
+                                    Total: ₹ {{ winner_vendor.total_amount }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ✅ ITEMS TABLE - 100% WIDTH -->
+                    <div style="width: 100%; overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; min-width: 600px;">
+                            <thead>
+                                <tr style="background: #f8f9fa; border: 1px solid #b3aeae;">
+                                    <th style="padding: 8px 10px; text-align: left; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; color: #666; border: 1px solid #b3aeae; width: 25%;">Item Name</th>
+                                    <th style="padding: 8px 10px; text-align: center; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; color: #666; border: 1px solid #b3aeae; width: 15%;">Ordered Qty</th>
+                                    <th style="padding: 8px 10px; text-align: center; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; color: #666; border: 1px solid #b3aeae; width: 15%;">Received Qty</th>
+                                    <th style="padding: 8px 10px; text-align: center; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; color: #666; border: 1px solid #b3aeae; width: 15%;">Unit Price</th>
+                                    <th style="padding: 8px 10px; text-align: center; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; color: #666; border: 1px solid #b3aeae; width: 20%;">Item Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in winner_vendor.items.all %}
+                                <tr>
+                                    <td style="padding: 6px 8px; border: 1px solid #666; vertical-align: middle;">
+                                        <input type="text" 
+                                               value="{{ item.item_name }}" 
+                                               readonly 
+                                               style="width: 100%; padding: 6px 8px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 3px; font-weight: 500; font-size: 13px; box-sizing: border-box;">
+                                    </td>
+                                    <td style="padding: 6px 8px; border: 1px solid #666; vertical-align: middle; text-align: center;">
+                                        <input type="text" 
+                                               value="{{ item.quantity }}" 
+                                               readonly 
+                                               style="width: 100%; padding: 6px 8px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 3px; text-align: center; font-size: 13px; box-sizing: border-box;">
+                                    </td>
+                                    <td style="padding: 6px 8px; border: 1px solid #666; vertical-align: middle; text-align: center;">
+                                        <input type="number" 
+                                               name="quantity_{{ item.id }}" 
+                                               value="{{ item.quantity }}" 
+                                               class="received-qty" 
+                                               data-item-id="{{ item.id }}"
+                                               min="0"
+                                               max="{{ item.quantity }}"
+                                               required
+                                               style="width: 100%; padding: 6px 8px; border: 2px solid #28a745; border-radius: 3px; text-align: center; font-weight: 500; font-size: 13px; box-sizing: border-box;">
+                                    </td>
+                                    <td style="padding: 6px 8px; border: 1px solid #666; vertical-align: middle; text-align: center;">
+                                        <input type="text" 
+                                               value="₹ {{ item.quotation_price }}" 
+                                               readonly 
+                                               style="width: 100%; padding: 6px 8px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 3px; text-align: center; font-size: 13px; box-sizing: border-box;">
+                                    </td>
+                                    <td style="padding: 6px 8px; border: 1px solid #666; vertical-align: middle; text-align: center;">
+                                        <input type="text" 
+                                               class="item-total" 
+                                               id="item_total_{{ item.id }}"
+                                               value="₹ {{ item.total_price }}" 
+                                               readonly 
+                                               style="width: 100%; padding: 6px 8px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 3px; text-align: center; font-weight: 600; color: #28a745; font-size: 13px; box-sizing: border-box;">
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot style="background: #f8f9fa; font-weight: 600;">
+                                <tr>
+                                    <td colspan="4" style="text-align: right; font-size: 15px; border-top: 2px solid #28a745; padding: 8px;">
+                                        GRAND TOTAL
+                                    </td>
+                                    <td style="font-size: 16px; color: #28a745; border-top: 2px solid #28a745; text-align: center; padding: 8px;">
+                                        ₹ <span id="grand-total">{{ winner_vendor.total_amount }}</span>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    
+                {% else %}
+                    <div style="padding: 15px; text-align: center; color: #856404; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;">
+                        ⚠️ No winner vendor selected yet.
+                    </div>
+                {% endif %}
             {% endwith %}
-
-            {% for vendor in note.vendors.all %}
-
-            {% if vendor.is_winner %}
-
-            <div class="alert alert-info">
-
-                <strong>
-                    Winner Vendor :
-                </strong>
-
-                {{ vendor.vendor_name }}
-
-            </div>
-
-            <!-- ===================================== -->
-            <!-- ITEMS TABLE -->
-            <!-- ===================================== -->
-
-            <table class="table table-bordered">
-
-                <thead class="table-dark">
-
-                    <tr>
-
-                        <th>Category</th>
-
-                        <th>Item Name</th>
-
-                        <th>Ordered Qty</th>
-
-                        <th>Received Qty</th>
-
-                        <th>Unit Price</th>
-
-                        <th>Total Price</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    {% for item in vendor.items.all %}
-
-                    <tr>
-
-                        <!-- CATEGORY -->
-
-                        <td>
-
-                            <input type="text"
-                                   name="category_{{ item.id }}"
-                                   class="form-control">
-
-                        </td>
-
-                        <!-- ITEM NAME -->
-
-                        <td>
-
-                            <input type="text"
-                                   class="form-control"
-                                   value="{{ item.item_name }}"
-                                   readonly>
-
-                        </td>
-
-                        <!-- ORDERED QTY -->
-
-                        <td>
-
-                            <input type="text"
-                                   class="form-control"
-                                   value="{{ item.quantity }}"
-                                   readonly>
-
-                        </td>
-
-                        <!-- RECEIVED QTY -->
-
-                        <td>
-
-                            <input type="number"
-                                   name="quantity_{{ item.id }}"
-                                   value="{{ item.quantity }}"
-                                   class="form-control"
-                                   required>
-
-                        </td>
-
-                        <!-- PRICE -->
-
-                        <td>
-
-                            <input type="text"
-                                   class="form-control"
-                                   value="{{ item.quotation_price }}"
-                                   readonly>
-
-                        </td>
- <!-- Total PRICE -->
-                        <td>
-
-                            <input type="text"
-                                   class="form-control"
-                                   value="{{ item.vendor.total_amount }}"
-                                   readonly>
-
-                        </td>
-
-                    </tr>
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
-
-            {% endif %}
-
-            {% endfor %}
-
-            <!-- ===================================== -->
-            <!-- DATE -->
-            <!-- ===================================== -->
-
-            <div class="row">
-
-                <div class="col-md-6 mb-3">
-
-                    <label class="fw-bold">
-
-                        Received Date
-
-                    </label>
-
-                    <input type="date"
-                           name="added_date"
-                           class="form-control"
-                           required>
-
+            
+            <!-- DATE AND REMARK -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                <div class="field-group">
+                    <label style="font-size: 11px; font-weight: 500; color: #666; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.3px;">📅 Received Date</label>
+                    <input type="date" 
+                           name="added_date" 
+                           required
+                           style="width: 100%; padding: 8px 10px; border: 1px solid #ccc9c9; border-radius: 3px; font-size: 13px; background: #ffffff; transition: all 0.2s; box-sizing: border-box;">
                 </div>
-
+                
+                <div class="field-group">
+                    <label style="font-size: 11px; font-weight: 500; color: #666; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.3px;">📋 Inventory Remark</label>
+                    <input type="text" 
+                           name="remark_text" 
+                           placeholder="Enter inventory verification remark..."
+                           required
+                           style="width: 100%; padding: 8px 10px; border: 1px solid #ccc9c9; border-radius: 3px; font-size: 13px; background: #ffffff; transition: all 0.2s; box-sizing: border-box;">
+                </div>
             </div>
-
-            <!-- ===================================== -->
-            <!-- USER REMARK -->
-            <!-- ===================================== -->
-
-            <div class="mb-3">
-
-                <label class="fw-bold">
-
-                    Inventory Remark
-
-                </label>
-
-                <textarea name="remark_text"
-                          rows="4"
-                          class="form-control"
-                          placeholder="Enter inventory verification remark..."
-                          required></textarea>
-
-            </div>
-
-            <!-- ===================================== -->
+            
             <!-- BUTTON -->
-            <!-- ===================================== -->
-
-            <button class="btn btn-success">
-
-                Save Inventory & Send To Finance
-
-            </button>
-
+            <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="submit" class="minimal-btn minimal-btn-success" style="padding: 10px 30px; font-size: 14px; height: auto;">
+                    💾 Save Inventory & Send To Finance
+                </button>
+            </div>
+            
         </form>
-
+        
     </div>
-
 </div>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script>
+// Auto-calculate item total and grand total
+$(document).on('input change', '.received-qty', function() {
+    let row = $(this).closest('tr');
+    let orderedQty = parseFloat(row.find('td:eq(1) input').val()) || 0;
+    let receivedQty = parseFloat($(this).val()) || 0;
+    let unitPrice = parseFloat(row.find('td:eq(3) input').val().replace('₹ ', '')) || 0;
+    
+    // Validate received qty doesn't exceed ordered qty
+    if (receivedQty > orderedQty) {
+        $(this).val(orderedQty);
+        receivedQty = orderedQty;
+        Swal.fire({
+            icon: 'warning',
+            title: 'Quantity Exceeds',
+            text: 'Received quantity cannot exceed ordered quantity.',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    }
+    
+    // Calculate item total
+    let itemTotal = receivedQty * unitPrice;
+    let itemId = $(this).data('item-id');
+    $('#item_total_' + itemId).val('₹ ' + itemTotal.toFixed(2));
+    
+    // Calculate grand total
+    let grandTotal = 0;
+    $('.item-total').each(function() {
+        let val = $(this).val().replace('₹ ', '');
+        grandTotal += parseFloat(val) || 0;
+    });
+    $('#grand-total').text(grandTotal.toFixed(2));
+});
+
+// Form validation before submit
+$('form[action*="inventory_received"]').on('submit', function(e) {
+    let hasError = false;
+    let errorMessage = '';
+    
+    $('.received-qty').each(function() {
+        let receivedQty = parseFloat($(this).val()) || 0;
+        let orderedQty = parseFloat($(this).attr('max')) || 0;
+        
+        if (receivedQty < 0) {
+            hasError = true;
+            errorMessage = 'Received quantity cannot be negative.';
+            $(this).focus();
+            return false;
+        }
+        
+        if (receivedQty > orderedQty) {
+            hasError = true;
+            errorMessage = 'Received quantity cannot exceed ordered quantity.';
+            $(this).focus();
+            return false;
+        }
+    });
+    
+    if (hasError) {
+        e.preventDefault();
+        Swal.fire({
+            icon: 'error',
+            title: 'Validation Error',
+            text: errorMessage,
+            confirmButtonText: 'OK'
+        });
+        return false;
+    }
+    
+    // Confirm before submitting
+    e.preventDefault();
+    Swal.fire({
+        title: 'Confirm Inventory Entry?',
+        text: 'Are you sure you want to save inventory and send to Chairman?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, Submit!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+        }
+    });
+});
+</script>
+
+<style>
+/* Additional styles for inventory form */
+#inventory-table input {
+    padding: 6px 8px;
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+#inventory-table .received-qty:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
+    outline: none;
+}
+
+#inventory-table .received-qty {
+    transition: all 0.3s ease;
+}
+
+#inventory-table .received-qty:hover {
+    border-color: #28a745;
+    background: #f0fff0;
+}
+
+#inventory-table tfoot {
+    font-size: 15px;
+}
+
+#grand-total {
+    font-weight: 700;
+    font-size: 18px;
+    color: #28a745;
+}
+
+.minimal-btn-success {
+    background: #28a745;
+    color: white;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 13px;
+}
+
+.minimal-btn-success:hover {
+    background: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.minimal-btn-success:active {
+    transform: translateY(0);
+}
+
+/* Field group styles */
+.field-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.field-group input:focus {
+    border-color: #4a90d9;
+    background: #fff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.1);
+}
+
+/* 100% width for all inputs */
+.minimal-table input {
+    width: 100% !important;
+    box-sizing: border-box;
+}
+
+/* Table full width */
+.minimal-table {
+    width: 100% !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #inventory-table {
+        font-size: 12px;
+    }
+    
+    #inventory-table input {
+        font-size: 12px;
+        padding: 4px 6px;
+    }
+    
+    #inventory-table td {
+        padding: 4px;
+    }
+    
+    .field-group {
+        min-width: 100%;
+    }
+    
+    div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
 
 {% endif %}

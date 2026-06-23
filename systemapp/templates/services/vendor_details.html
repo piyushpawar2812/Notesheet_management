@@ -1,80 +1,52 @@
-<div class="d-flex gap-2 mt-3">
-
-    <!-- APPROVE -->
-
-    <form method="POST">
-
-        {% csrf_token %}
-
-        <input type="hidden"
-               name="action_type"
-               value="chairman_quotation_approve">
-
-        <button class="btn btn-success">
-
-            Approve Quotation
-
-        </button>
-
-    </form>
-
-    <!-- REVERT -->
-
-    <form method="POST">
-
-        {% csrf_token %}
-
-        <input type="hidden"
-               name="action_type"
-               value="chairman_quotation_revert">
-
-        <button class="btn btn-danger">
-
-            Revert Quotation
-
-        </button>
-
-    </form>
-    </div>
-
-<br>
-<!-- VENDOR QUOTATIONS LIST SECTION -->
 <div class="minimal-card">
     <div class="minimal-header" onclick="toggleSection('vendorList')">
         <span>📋 Vendor Details</span>
         <span class="toggle-icon rotated" id="vendorListIcon">▾</span>
     </div>
     <div class="minimal-body active" id="vendorList">
+        <!-- ✅ VENDORS LIST - हमेशा दिखेगा -->
         {% for vendor in note.vendors.all %}
-        <div class="vendor-item">
+        <div class="vendor-item {% if note.procurement_status == 'QUOTATION_PENDING_CHAIRMAN' or note.procurement_status == 'QUOTATION_APPROVED' %}vendor-locked{% endif %}">
             <div class="vendor-header">
                 <div class="vendor-info">
+                    <strong>{{ forloop.counter }}.</strong>
                     Vendor Name-<strong>{{ vendor.vendor_name }}</strong>
                     {% if vendor.is_winner %}
-                   <span class="badge-minimal px-4 py-2 text-base font-semibold">Winner</span>
+                    <span class="badge-minimal">🏆 Winner</span>
                     {% endif %}
-                    <span>GST: {{ vendor.gst_number }}</span>
+                    <span>GST: {{ vendor.gst_number|default:"N/A" }}</span>
                     <span>Total: ₹ {{ vendor.total_amount }}</span>
                     <span>
                         {% if vendor.quotation_file %}
-                        <a href="{{ vendor.quotation_file.url }}" target="_blank" class="file-link">
-                            📎 View File
-                        </a>
+                        <a href="{{ vendor.quotation_file.url }}" target="_blank" class="file-link">📎 View File</a>
                         {% else %}
                         <span class="text-muted">No File</span>
                         {% endif %}
                     </span>
+                    {% if note.procurement_status == "QUOTATION_PENDING_CHAIRMAN" or note.procurement_status == "QUOTATION_APPROVED" %}
+                    <span class="badge-locked">🔒 Locked</span>
+                    {% endif %}
                 </div>
+{% comment %}                 
+                <!-- ✅ SELECT WINNER BUTTON - सिर्फ अनलॉक होने पर -->
                 {% if request.session.role|lower == "purchase" %}
-                <a href="{% url 'select_vendor_winner' vendor.id %}" class="minimal-btn minimal-btn-success" style="font-size: 11px;">
-                    ✔ Select Winner
-                </a>
-                {% endif %}
+                    {% if note.procurement_status == "QUOTATION_PENDING_CHAIRMAN" or note.procurement_status == "QUOTATION_APPROVED" %}
+                        <button class="minimal-btn minimal-btn-success" disabled style="font-size: 11px;">
+                            ✔ Select Winner (Locked)
+                        </button>
+                    {% else %}
+                        <a href="{% url 'select_vendor_winner' vendor.id %}" class="minimal-btn minimal-btn-success" style="font-size: 11px;">
+                            ✔ Select Winner
+                        </a>
+                    {% endif %}
+                {% endif %} {% endcomment %}
             </div>
             
+            <!-- ✅ ITEMS TABLE - हमेशा दिखेगा -->
             <table class="minimal-table" style="margin-top: 8px;">
                 <thead>
                     <tr>
+                        <th>Sr.No.</th>
                         <th>Item</th>
                         <th>Qty</th>
                         <th>Unit Price</th>
@@ -85,11 +57,16 @@
                 <tbody>
                     {% for item in vendor.items.all %}
                     <tr>
-                        <td>{{ item.item_name }}</td>
+                        <td>{{ forloop.counter }}</td>
+                        <td><strong>{{ item.item_name }}</strong></td>
                         <td>{{ item.quantity }}</td>
                         <td>₹ {{ item.unit_price }}</td>
                         <td>₹ {{ item.quotation_price }}</td>
                         <td>₹ {{ item.total_price }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No items added</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -100,83 +77,48 @@
             No vendor quotations added.
         </div>
         {% endfor %}
-        
-        {% if request.session.role|lower == "purchase" %}
-        <form method="POST" action="{% url 'send_quotation_to_chairman' note.id %}" style="margin-top: 12px;">
-            {% csrf_token %}
-            <button class="minimal-btn minimal-btn-dark">Send To Chairman</button>
-        </form>
-        {% endif %}
-    </div>
 
-</div>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+        ===========================================
+// DJANGO MESSAGES
+// =============================================
 {% if messages %}
-    {% for message in messages %}
-        <script>
+    if (!sessionStorage.getItem('messagesShown')) {
+        sessionStorage.setItem('messagesShown', 'true');
+        
+        {% for message in messages %}
             Swal.fire({
                 icon: '{% if message.tags == "error" %}error{% elif message.tags == "success" %}success{% elif message.tags == "warning" %}warning{% else %}info{% endif %}',
                 title: '{{ message.tags|title }}',
                 text: '{{ message }}',
                 confirmButtonText: 'OK',
-                timer: 8000,
-                timerProgressBar: true,
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown'
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp'
-                }
+                timer: 5000,
+                timerProgressBar: true
             });
-        </script>
-    {% endfor %}
+        {% endfor %}
+        
+        setTimeout(function() {
+            sessionStorage.removeItem('messagesShown');
+        }, 1000);
+    }
 {% endif %}
 
-
-
-<!-- JAVASCRIPT -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script>
-// Toggle sections
-function toggleSection(id) {
-    const body = document.getElementById(id);
-    const icon = document.getElementById(id + 'Icon');
-    
-    if (body) {
-        body.classList.toggle('active');
-        if (icon) {
-            icon.classList.toggle('rotated');
+// =============================================
+// PREVENT LOCKED FORM SUBMISSION
+// =============================================
+$(document).ready(function() {
+    $('form').on('submit', function(e) {
+        if ($(this).find('input:disabled').length > 0) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Locked',
+                text: 'This quotation is locked and cannot be modified.',
+                confirmButtonText: 'OK'
+            });
+            return false;
         }
-    }
-}
-
-// Add item row
-$('#add-item-btn').click(function() {
-    $('#items-table tbody').append(`
-        <tr>
-            <td><input type="text" name="item_name[]" required></td>
-            <td><input type="number" name="quantity[]" class="qty" required></td>
-            <td><input type="number" step="0.01" name="unit_price[]" required></td>
-            <td><input type="number" step="0.01" name="quotation_price[]" class="quote-price" required></td>
-            <td><input type="text" class="total-price" readonly style="background: #f5f5f5;"></td>
-            <td>
-                <button type="button" class="minimal-btn minimal-btn-danger remove-row" style="padding: 2px 10px; font-size: 11px;">✕</button>
-            </td>
-        </tr>
-    `);
-});
-
-// Remove row
-$(document).on('click', '.remove-row', function() {
-    $(this).closest('tr').remove();
-});
-
-// Calculate total
-$(document).on('keyup change', '.qty, .quote-price', function() {
-    let row = $(this).closest('tr');
-    let qty = parseFloat(row.find('.qty').val()) || 0;
-    let price = parseFloat(row.find('.quote-price').val()) || 0;
-    row.find('.total-price').val((qty * price).toFixed(2));
+    });
 });
 </script>
 
@@ -316,6 +258,18 @@ $(document).on('keyup change', '.qty, .quote-price', function() {
         background: #23272b;
     }
     
+    /* Disabled button styles */
+    .minimal-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed !important;
+        pointer-events: none;
+    }
+    
+    .minimal-btn:disabled:hover {
+        opacity: 0.5;
+        background: inherit;
+    }
+    
     .minimal-table {
         width: 100%;
         border-collapse: collapse;
@@ -339,7 +293,6 @@ $(document).on('keyup change', '.qty, .quote-price', function() {
         border: 1px solid #666;
         padding: 4px 6px;
         vertical-align: middle;
-        
     }
     
     .minimal-table input {
@@ -357,11 +310,22 @@ $(document).on('keyup change', '.qty, .quote-price', function() {
         outline: none;
     }
     
+    .minimal-table input:disabled {
+        background: #f5f5f5 !important;
+        cursor: not-allowed !important;
+        opacity: 0.7;
+    }
+    
     .vendor-item {
         border: 1px solid #e8e8e8;
         border-radius: 4px;
         padding: 12px;
         margin-bottom: 10px;
+    }
+    
+    .vendor-item.vendor-locked {
+        background: #f8f9fa;
+        opacity: 0.85;
     }
     
     .vendor-item .vendor-header {
@@ -392,6 +356,15 @@ $(document).on('keyup change', '.qty, .quote-price', function() {
         font-weight: 500;
     }
     
+    .badge-locked {
+        background: #6c757d;
+        color: white;
+        padding: 1px 8px;
+        border-radius: 10px;
+        font-size: 10px;
+        font-weight: 500;
+    }
+    
     .file-link {
         color: #4a90d9;
         text-decoration: none;
@@ -416,14 +389,43 @@ $(document).on('keyup change', '.qty, .quote-price', function() {
         padding: 10px 15px;
         border-radius: 4px;
         margin-bottom: 12px;
-        background: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
         font-size: 13px;
+    }
+    
+    .alert-warning-minimal {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        color: #856404;
+    }
+    
+    .alert-info-minimal {
+        background: #e9ecef;
+        border: 1px solid #6c757d;
+        color: #495057;
+    }
+    
+    .alert-danger-minimal {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
     }
     
     .alert-minimal strong {
         font-weight: 600;
+    }
+    
+    /* Disabled form overlay */
+    .form-disabled {
+        position: relative;
+        opacity: 0.5;
+        pointer-events: none;
+    }
+    
+    .form-disabled input,
+    .form-disabled select,
+    .form-disabled textarea,
+    .form-disabled button {
+        pointer-events: none;
     }
     
     .mt-2 { margin-top: 8px; }
@@ -435,4 +437,5 @@ $(document).on('keyup change', '.qty, .quote-price', function() {
     .items-center { align-items: center; }
     .justify-between { justify-content: space-between; }
     .text-muted { color: #6c757d; }
+    .text-center { text-align: center; }
 </style>

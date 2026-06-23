@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+    <div class="card shadow border-0">
+
+        <div class="card-header bg-primary text-white">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <h4 class="mb-0">
+                    User Management
+                </h4>
+
+                <a href="{% url 'user_add' %}"
+                   class="btn btn-light">
+                    + Create User
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover table-bordered" id="inboxTable">
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            <th>Sr. no.</th>
+                            <th>Login ID</th>
+                            <th>Officer Name</th>
+                            <th>Role</th>
+                            <th>College</th>
+                            <th>Designation</th>
+                            <th>Mobile</th>
+                            <th>Status</th>
+                            <th width="170">Action</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for user in users %}
+
+                        <tr>
+
+                            <td>{{ forloop.counter }}</td>
+
+                            <td>{{ user.login_id }}</td>
+
+                            <td>{{ user.officer_name }}</td>
+
+                            <td>{{ user.role.role_name }}</td>
+
+                            <td>{{ user.collage }}</td>
+
+                            <td>{{ user.designation }}</td>
+
+                            <td>{{ user.mobile_no }}</td>
+
+                            <td>
+
+                                {% if user.status %}
+                                    <span class="badge bg-success">
+                                        Active
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                        Inactive
+                                    </span>
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                <a href="{% url 'user_edit' user.id %}"
+                                   class="btn btn-warning btn-sm">
+                                    Edit
+                                </a>
+
+                                <a href="{% url 'user_delete' user.id %}"
+                                   class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Are you sure?');">
+                                    Delete
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                        {% empty %}
+
+                        <tr>
+
+                            <td colspan="9" class="text-center">
+
+                                No User Found
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet"
+href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
+
+$(document).ready(function () {
+
+    $('#inboxTable').DataTable({
+
+        paging: true,
+
+        info: false,
+
+        ordering: false,
+
+        responsive: true,
+
+        language: {
+
+            search: "Search Notesheet : "
+
+        }
+
+    });
+
+});
+
+</script>
+{% endblock %}

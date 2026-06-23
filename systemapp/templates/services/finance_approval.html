@@ -75,7 +75,7 @@
 
             <div class="alert alert-warning">
 
-                Finance sent billing for chairman approval.
+                Purchase Received and Approval Pending for Billing.
 </div>
 
 
@@ -123,21 +123,41 @@
             Finance can now close procurement.
 
         </div>
+        
+       <!-- ========================================== -->
+<!-- FINANCE ATTACHMENT FORM - CORRECT -->
+<!-- ========================================== -->
 
-        <form method="POST">
+<form method="POST"
+      action="{% url 'edit_notesheet' note.id %}"
+      enctype="multipart/form-data">  <!-- ✅ IMPORTANT: enctype must be multipart/form-data -->
 
-            {% csrf_token %}
+    {% csrf_token %}
 
-            <button
-                type="submit"
-                name="action_type"
-                value="finance_final_approve"
-                class="btn btn-success"
-            >
-                Final Approve & Close
-            </button>
+    <!-- FILE INPUT -->
+    <div class="mb-3">
+        <label class="form-label fw-bold">
+            📎 Upload Invoice / Bill <span class="text-danger">*</span>
+        </label>
+        <input type="file"
+               name="finance_attachment"
+               class="form-control"
+               accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+               required>
+    </div>
 
-        </form>
+    <!-- REMARK -->
+
+
+    <!-- BUTTON -->
+    <button type="submit"
+            name="action_type"
+            value="finance_final_approve"
+            class="btn btn-info">
+        📤 Final Approve and Close
+    </button>
+
+</form>
 
     </div>
 

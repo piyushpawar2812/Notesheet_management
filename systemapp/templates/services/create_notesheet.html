@@ -1,61 +1,56 @@
 {% extends "base.html" %}
 
 {% block page_title %}Create Notesheet{% endblock %}
-{% block page_subtitle %}Start a new office file with a clear title, department, and opening note for the discussion trail.{% endblock %}
+
 
 {% block content %}
+
 <div class="row justify-content-center">
     <div class="col-xl-8">
         <div class="surface-card page-card-body">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-2">
                 <div>
                     <div class="badge-soft mb-2"><i class="fa-solid fa-sparkles"></i> New file</div>
                     <h3 class="fw-bold mb-1">Create a notesheet</h3>
-                    <p class="text-secondary mb-0">The opening description is also saved into the shared timeline, so the first officer note is visible from day one.</p>
                 </div>
                 <a href="{% url 'your_notesheets' %}" class="btn btn-soft">Back to files</a>
             </div>
 
             <form method="POST" class="row g-4">
                 {% csrf_token %}
-                <div class="col-12">
+                <div class="col-6">
                     <label class="form-label fw-semibold">Title</label>
-                    <input type="text" name="title" class="form-control" placeholder="Example: Procurement approval for office systems" required>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Collage</label>
-                    <select name="department" class="form-select">
-                        <option value="">Select Collage</option>
-                        {% for d in departments %}
-                            <option value="{{ d.id }}">{{ d.department_name }}</option>
-                        {% endfor %}
-                    </select>
+                    <input type="text" name="title" class="form-control" placeholder="Example: Procurement approval for office systems" {% if form_disabled %}disabled{% endif %} required>
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label fw-semibold">Purpose of Notesheet</label>
-                    <select name="purpose" class="form-select">
-                        <option value="">Select Purpose</option>
+                    <select name="purpose" class="form-select"{% if form_disabled %}disabled{% endif %} required>
+                        <option value="" >Select Purpose</option>
                         {% for p in purpose %}
                             <option value="{{ p.id }}">{{ p.purpose_name }}</option>
                         {% endfor %}
                     </select>
                 </div>
-
-
-
-
-                <div class="col-12">
+               <div class="col-md-12">
                     <label class="form-label fw-semibold">Opening note</label>
-                    <textarea name="description" class="form-control" rows="6" placeholder="Add the initial note, context, and any background needed for the file journey."></textarea>
-                </div>
+                    <textarea name="description" class="form-control" rows="6" placeholder="Add the initial note, context, and any background needed for the file journey."{% if form_disabled %}disabled{% endif %}></textarea>
+                </div> 
 
                 <div class="col-12 d-flex justify-content-end">
-                    <button type="submit" class="btn btn-brand">Create Notesheet</button>
+{% if not form_disabled %}
+<button type="submit" class="btn btn-brand">
+    Create Notesheet
+</button>
+{% endif %}
+
                 </div>
             </form>
+            
         </div>
     </div>
 </div>
+
+
+
 {% endblock %}

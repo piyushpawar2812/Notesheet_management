@@ -34,9 +34,8 @@
                             <div class="fw-bold">{{ row.instance.notesheet_no }}</div>
                             <div class="text-secondary small">{{ row.instance.title }}</div>
                         </td>
-                        
-                        <td>{{ row.instance.purpose.purpose_name|default:"Not assigned" }}</td>
-                        <td>{{ row.instance.department.department_name|default:"Not assigned" }}</td>
+                         <td>{{ row.instance.purpose.purpose_name|default:"Not assigned" }}</td>
+                        <td>{{ row.instance.collage.collage_name|default:"Not assigned" }}</td>
                         <td>{{ row.instance.created_by.officer_name }}</td>
                         <td>{{ row.current_holder.officer_name }}</td>
                         <td>
@@ -49,7 +48,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            <a href="{% if row.can_edit %}{% url 'edit_notesheet' row.instance.id %}{% else %}{% url 'open_sent_file' row.instance.id %}{% endif %}" class="btn btn-soft">
+                            <a href="{% if row.can_edit %}{% url 'edit_notesheet' row.instance.id %}{% else %}{% url 'open_sent_file' row.instance.id %}{% endif %}" class="btn btn-brand">
                                 Open
                             </a>
                         </td>

@@ -3,45 +3,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="icon"
-          type="image/png"
-          href="{% static 'images/logorrc.png' %}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RadhaRaman · Sign in</title>
+    <link rel="icon" type="image/png" href="{% static 'images/logorrc.png' %}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             min-height: 100vh;
-            margin: 0;
             display: grid;
             place-items: center;
             font-family: "Manrope", sans-serif;
             background:
-                radial-gradient(circle at top left, rgba(255, 107, 53, 0.32), transparent 28%),
-                radial-gradient(circle at bottom right, rgba(20, 33, 61, 0.18), transparent 30%),
-                linear-gradient(135deg, #faf4ea, #efe6db);
+                radial-gradient(circle at 10% 30%, rgba(255, 107, 53, 0.20), transparent 50%),
+                radial-gradient(circle at 90% 70%, rgba(20, 33, 61, 0.12), transparent 55%),
+                linear-gradient(145deg, #f8f2ea 0%, #efe6db 100%);
+            padding: 1.5rem;
         }
 
+        /* ---------- main card ---------- */
         .login-shell {
-            width: min(980px, 94vw);
+            width: min(1024px, 96vw);
             display: grid;
-            grid-template-columns: 1.1fr 0.9fr;
+            grid-template-columns: 1.2fr 1fr;
+            border-radius: 44px;
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow:
+                0 32px 72px -16px rgba(20, 33, 61, 0.20),
+                inset 0 1px 2px rgba(255, 255, 255, 0.6);
             overflow: hidden;
-            border-radius: 32px;
-            background: rgba(255, 255, 255, 0.82);
-            box-shadow: 0 26px 60px rgba(20, 33, 61, 0.16);
-            backdrop-filter: blur(18px);
+            transition: transform 0.2s ease;
         }
 
+        /* ---------- left pane ---------- */
         .hero-pane {
-            padding: 48px;
-            background: linear-gradient(155deg, #14213d 0%, #22304f 55%, #ff6b35 160%);
+            padding: 44px 40px;
+            background: linear-gradient(155deg, #14213d 0%, #1e2d4f 55%, #ff6b35 160%);
             color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .hero-chip {
@@ -49,22 +62,42 @@
             align-items: center;
             gap: 10px;
             border-radius: 999px;
-            padding: 10px 14px;
-            background: rgba(255, 255, 255, 0.1);
-            margin-bottom: 24px;
+            padding: 8px 18px 8px 14px;
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(4px);
+            width: fit-content;
+            margin-bottom: 28px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+        }
+        .hero-chip i {
+            font-size: 1.2rem;
+            color: #ffb085;
         }
 
         .hero-title {
-            font-size: clamp(2rem, 3vw, 3.25rem);
+            font-size: clamp(2.2rem, 4.5vw, 3.6rem);
             font-weight: 800;
             line-height: 1.05;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+        .hero-title span {
+            background: linear-gradient(120deg, #ffb085, #ff7a4a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .hero-copy {
-            color: rgba(255, 255, 255, 0.78);
-            line-height: 1.75;
-            margin-bottom: 28px;
+            color: rgba(255, 255, 255, 0.80);
+            line-height: 1.7;
+            margin-bottom: 36px;
+            font-size: 1.05rem;
+            font-weight: 400;
+            max-width: 90%;
         }
 
         .hero-points {
@@ -73,156 +106,262 @@
         }
 
         .hero-point {
-            padding: 14px 16px;
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.08);
+            padding: 16px 20px;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.07);
             border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(4px);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: 0.2s;
+        }
+        .hero-point i {
+            font-size: 1.3rem;
+            color: #ffb085;
         }
 
+        /* ---------- right pane (form) ---------- */
         .form-pane {
             padding: 48px 40px;
             display: flex;
             align-items: center;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(4px);
         }
 
         .form-card {
             width: 100%;
         }
 
+        .logo-wrapper {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+        .logo-wrapper img {
+            max-height: 64px;
+            width: auto;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.04));
+        }
+
         .form-title {
             font-size: 2rem;
             font-weight: 800;
-            margin-bottom: 6px;
             color: #14213d;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
         }
 
         .form-copy {
             color: #5e6a7f;
             margin-bottom: 28px;
-        }
-
-        .input-group-text,
-        .form-control {
-            border-radius: 16px;
-            border-color: rgba(20, 33, 61, 0.12);
-            padding: 0.9rem 1rem;
+            font-weight: 450;
         }
 
         .input-group-text {
-            background: #fff7f2;
+            border-radius: 18px 0 0 18px;
+            background: #fcf6f0;
+            border-color: rgba(20, 33, 61, 0.10);
             color: #ff6b35;
+            padding-left: 18px;
+            padding-right: 14px;
+        }
+
+        .form-control {
+            border-radius: 0 18px 18px 0;
+            border-color: rgba(20, 33, 61, 0.10);
+            padding: 0.85rem 1rem;
+            font-weight: 450;
+            background: white;
+            transition: 0.2s;
+        }
+        .form-control:focus {
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.12);
+        }
+
+        .input-group {
+            margin-bottom: 2px;
         }
 
         .btn-login {
             border: none;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #ff915d, #ff6b35);
+            border-radius: 40px;
+            background: linear-gradient(135deg, #ff7a4a, #ff5722);
             color: white;
             padding: 0.95rem 1rem;
-            font-weight: 800;
+            font-weight: 700;
+            font-size: 1.05rem;
             width: 100%;
-            box-shadow: 0 18px 28px rgba(255, 107, 53, 0.22);
+            box-shadow: 0 18px 28px -10px rgba(255, 87, 34, 0.35);
+            transition: 0.2s ease;
+            letter-spacing: 0.3px;
+            margin-top: 10px;
+        }
+        .btn-login:hover {
+            transform: scale(1.01);
+            box-shadow: 0 22px 34px -10px rgba(255, 87, 34, 0.45);
+            background: linear-gradient(135deg, #ff8a5c, #ff4e1a);
+        }
+        .btn-login:active {
+            transform: scale(0.98);
         }
 
-        @media (max-width: 900px) {
+        .error-msg {
+            font-size: 0.8rem;
+            margin-top: 2px;
+        }
+
+        .alert-danger {
+            border-radius: 40px;
+            background: #ffe2d9;
+            border: none;
+            color: #b3401a;
+            font-weight: 500;
+            padding: 0.7rem 1.2rem;
+            margin-top: 16px;
+        }
+
+        /* ---------- responsive ---------- */
+        @media (max-width: 920px) {
             .login-shell {
                 grid-template-columns: 1fr;
+                border-radius: 36px;
             }
-
-            .hero-pane,
+            .hero-pane {
+                padding: 32px 28px;
+                border-radius: 36px 36px 0 0;
+            }
             .form-pane {
-                padding: 32px 24px;
+                padding: 36px 28px;
+                border-radius: 0 0 36px 36px;
+            }
+            .hero-copy {
+                max-width: 100%;
+            }
+            .hero-points {
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-shell {
+                border-radius: 28px;
+            }
+            .hero-pane, .form-pane {
+                padding: 24px 18px;
+            }
+            .form-title {
+                font-size: 1.7rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="login-shell">
-        <section class="hero-pane">
-            <div class="hero-chip">
-                <i class="bi bi-shield-check"></i>
-                <span>RadhaRaman Group of Institute</span>
+
+<div class="login-shell">
+
+    <!-- LEFT: HERO -->
+    <section class="hero-pane">
+        <div class="hero-chip">
+            <i class="bi bi-shield-check"></i>
+            <span>RadhaRaman Group of Institute</span>
+        </div>
+        <div class="hero-title">
+            Notesheet <span>flow</span>
+        </div>
+        <div class="hero-copy">
+            Create, comment, attach documents, forward to the next officer, and keep the full conversation visible across the file journey.
+        </div>
+        <div class="hero-points">
+            <div class="hero-point">
+                <i class="bi bi-chat-dots"></i>
+                Shared conversation trail for every officer who touches the notesheet.
             </div>
-            <div class="hero-copy">Create, comment, attach documents, forward to the next officer, and keep the full conversation visible across the file journey.</div>
-            <div class="hero-points">
-                <div class="hero-point">Shared conversation trail for every officer who touches the notesheet.</div>
-                <div class="hero-point">Manage Purchase </div>
+            <div class="hero-point">
+                <i class="bi bi-cart-check"></i>
+                Manage Purchase &amp; procurement seamlessly.
             </div>
-        </section>
-<section class="form-pane">
-
-    <div class="form-card">
-
-        <!-- LOGO IMAGE -->
-
-        <div class="text-center mb-3">
-
-            <img src="{% static 'images\logorrc.png' %}"
-                 alt="Logo"
-                 class="img-fluid"
-                 style="max-height:150px;">
-
         </div>
+    </section>
 
-        <div class="form-title">
-            Sign in
-        </div>
+    <!-- RIGHT: FORM -->
+    <section class="form-pane">
+        <div class="form-card">
 
-        <div class="form-copy">
-            Enter your office credentials to continue.
-        </div>
+            <!-- Logo -->
+            <div class="logo-wrapper">
+                <img src="{% static 'images/logorrc.png' %}" alt="RadhaRaman logo" />
+            </div>
 
-                <form method="POST" onsubmit="return validateForm()">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Login ID</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-person"></i></span>
-                            <input id="login_id" name="login_id" class="form-control" placeholder="Enter login ID">
-                        </div>
-                        <small class="text-danger" id="login_error"></small>
+            <div class="form-title">Sign in</div>
+            <div class="form-copy">Enter your office credentials to continue.</div>
+
+            <form method="POST" onsubmit="return validateForm()" novalidate>
+                {% csrf_token %}
+
+                <!-- Login ID -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Login ID</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <input id="login_id" name="login_id" class="form-control" placeholder="Enter login ID" />
                     </div>
+                    <small class="text-danger error-msg" id="login_error"></small>
+                </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                            <input id="password" name="password" type="password" class="form-control" placeholder="Enter password">
-                        </div>
-                        <small class="text-danger" id="password_error"></small>
+                <!-- Password -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input id="password" name="password" type="password" class="form-control" placeholder="Enter password" />
                     </div>
+                    <small class="text-danger error-msg" id="password_error"></small>
+                </div>
 
-                    {% if error %}
-                        <div class="alert alert-danger">{{ error }}</div>
-                    {% endif %}
+                <!-- server error -->
+                {% if error %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
 
-                    <button class="btn-login mt-2">Login</button>
-                </form>
-            </div>
-        </section>
-    </div>
+                <button class="btn-login" type="submit">
+                    <i class="bi bi-arrow-right-circle me-2"></i>Login
+                </button>
+            </form>
 
-    <script>
-        function validateForm() {
-            let valid = true;
-            const login = document.getElementById("login_id").value.trim();
-            const password = document.getElementById("password").value.trim();
+        </div>
+    </section>
 
-            document.getElementById("login_error").innerText = "";
-            document.getElementById("password_error").innerText = "";
+</div>
 
-            if (!login) {
-                document.getElementById("login_error").innerText = "Login ID is required.";
-                valid = false;
-            }
+<script>
+    function validateForm() {
+        let valid = true;
 
-            if (!password) {
-                document.getElementById("password_error").innerText = "Password is required.";
-                valid = false;
-            }
+        const login = document.getElementById("login_id").value.trim();
+        const password = document.getElementById("password").value.trim();
 
-            return valid;
+        const loginErr = document.getElementById("login_error");
+        const passErr = document.getElementById("password_error");
+
+        loginErr.innerText = "";
+        passErr.innerText = "";
+
+        if (!login) {
+            loginErr.innerText = "Login ID is required.";
+            valid = false;
         }
-    </script>
+
+        if (!password) {
+            passErr.innerText = "Password is required.";
+            valid = false;
+        }
+
+        return valid;
+    }
+</script>
+
 </body>
 </html>

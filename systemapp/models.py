@@ -129,7 +129,7 @@ class NoteSheet(models.Model):
 
             self.notesheet_no = f"{college_code}/{year}/{sequence:04d}"
 
-            super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def current_holder(self):
         return self.forwarded_to or self.created_by

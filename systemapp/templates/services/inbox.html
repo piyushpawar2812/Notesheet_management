@@ -22,7 +22,7 @@
                     <th>From</th>
                     <th>Purpose</th>
                     <th>Collage</th>
-                    <th>Last movement</th>
+                    <th>Date</th>
                     <th>Open</th>
                 </tr>
             </thead>
@@ -30,13 +30,13 @@
                 {% for note in notes %}
                     <tr>
                         <td>
-                            <div class="fw-bold">{{ note.notesheet_no }}</div>
+                            <div class="fw-bold">{{ note.notesheet_no }}{{note.can_edit}}</div>
                             <div class="text-secondary small">{{ note.title }}</div>
                         </td>
                         <td>{{ note.created_by.officer_name }}</td>
                         <td>{{ note.purpose.purpose_name}}</td>
 
-                        <td>{{ note.department.department_name|default:"Not assigned" }}</td>
+                        <td>{{ note.collage.collage_name|default:"Not assigned" }}</td>
                         
                         <td>{{ note.remarks.last.created_at|date:"d M Y, h:i A"|default:note.created_at }}</td>
                 

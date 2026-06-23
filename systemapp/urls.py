@@ -1,9 +1,10 @@
 from django.urls import path
 from . import views
 from systemapp import inventorystock
+
+from .user_creation import *
 from .inventorystock import (
     inventory_stock,
-    add_inventory_stock,
     export_inventory_excel,
     import_inventory_excel
 )
@@ -99,11 +100,11 @@ path(
 ),
 
 
-path(
-    'finance-send-chairman/<int:pk>/',
-    views.finance_send_to_chairman,
-    name='finance_send_to_chairman'
-),
+# path(
+#     'finance-send-chairman/<int:pk>/',
+#     views.finance_send_to_chairman,
+#     name='finance_send_to_chairman'
+# ),
 
 path(
     'chairman_billing_approve/<int:pk>/',
@@ -127,12 +128,6 @@ path(
 ),
 
 path(
-    'add-inventory-stock/',
-    inventorystock.add_inventory_stock,
-    name='add_inventory_stock'
-),
-
-path(
     'export-inventory-excel/',
     inventorystock.export_inventory_excel,
     name='export_inventory_excel'
@@ -149,6 +144,33 @@ path(
     views.dashboard_view,
     name='dashboard_view'
 ),
+
+
+
+
+ path(
+        'users/',
+        user_list,
+        name='user_list'
+    ),
+
+    path(
+        'users/add/',
+        user_save,
+        name='user_add'
+    ),
+
+    path(
+        'users/edit/<int:pk>/',
+        user_save,
+        name='user_edit'
+    ),
+
+    path(
+        'users/delete/<int:pk>/',
+        user_delete,
+        name='user_delete'
+    ),
 
 
 

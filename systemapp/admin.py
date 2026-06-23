@@ -186,6 +186,25 @@ class NoteRemarkAdmin(admin.ModelAdmin):
 # =========================================================
 
 
+@admin.register(VendorQuotation)
+class VendorQuotation(admin.ModelAdmin):
+
+    list_display = (
+        'vendor_name',
+        'is_winner',
+        'gst_number',
+        'total_amount',
+
+    )
+
+    search_fields = (
+        'vendor_name',
+        'is_winner',
+        'gst_number',
+        'total_amount',
+    )
+
+
 @admin.register(VendorQuotationItem)
 class VendorQuotationItem(admin.ModelAdmin):
 

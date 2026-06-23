@@ -72,28 +72,28 @@
 </div>
 
 <div class="row g-4 mb-4">
-    <div class="col-md-6 col-xl-3">
+    <div class="col-md-8 col-xl-4">
         <div class="surface-card page-card-body h-100 summary-card">
             <div class="badge-soft mb-3"><i class="fa-solid fa-folder-tree"></i> Total notes</div>
             <h2 class="fw-bold mb-1">{{ accessible_notes }}</h2>
             <p class="text-secondary mb-0">All notesheets visible to you across created, handled, inbox, and sent flow.</p>
         </div>
     </div>
-    <div class="col-md-6 col-xl-3">
+    <div class="col-md-8 col-xl-4">
         <div class="surface-card page-card-body h-100 summary-card">
             <div class="badge-soft mb-3"><i class="fa-solid fa-inbox"></i> Total inbox</div>
             <h2 class="fw-bold mb-1">{{ inbox_count }}</h2>
             <p class="text-secondary mb-0">Files currently assigned to you and editable right now.</p>
         </div>
     </div>
-    <div class="col-md-6 col-xl-3">
+    {% comment %} <div class="col-md-6 col-xl-3">
         <div class="surface-card page-card-body h-100 summary-card">
             <div class="badge-soft mb-3"><i class="fa-solid fa-paper-plane"></i> Total sent</div>
             <h2 class="fw-bold mb-1">{{ sent_count }}</h2>
             <p class="text-secondary mb-0">Forwarding actions you have recorded in the sent register.</p>
         </div>
-    </div>
-    <div class="col-md-6 col-xl-3">
+    </div> {% endcomment %}
+    <div class="col-md-8 col-xl-4">
         <div class="surface-card page-card-body h-100 summary-card">
             <div class="badge-soft mb-3"><i class="fa-solid fa-file-pen"></i> Drafts with you</div>
             <h2 class="fw-bold mb-1">{{ draft_count }}</h2>
@@ -145,7 +145,7 @@
             <thead>
                 <tr>
                     <th>Notesheet</th>
-                    <th>Department</th>
+                    <th>Collage</th>
                     <th>Created By</th>
                     <th>Current Holder</th>
                     <th>Status</th>
@@ -159,7 +159,7 @@
                             <div class="fw-bold">{{ row.instance.notesheet_no }}</div>
                             <div class="text-secondary small">{{ row.instance.title }}</div>
                         </td>
-                        <td>{{ row.instance.department.department_name|default:"Not assigned" }}</td>
+                        <td>{{ row.instance.collage.collage_name|default:"Not assigned" }}</td>
                         <td>{{ row.instance.created_by.officer_name }}</td>
                         <td>{{ row.current_holder.officer_name }}</td>
                         <td>
@@ -173,9 +173,10 @@
                             {% endif %} {% endcomment %}
                         </td>
                         <td>{% if row.can_edit %}
-                            <a href="{% url 'edit_notesheet' row.instance.id %}" class="btn btn-soft">
+                            <a href="{% if row.can_edit %}{% url 'edit_notesheet' row.instance.id %}{% else %}{% url 'open_sent_file' row.instance.id %}{% endif %}" class="btn btn-brand">
                                 Open
                             </a>
+                        
                             {% endif %}
                         </td>
                          

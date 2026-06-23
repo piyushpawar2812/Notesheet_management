@@ -366,7 +366,7 @@
 
 </div>
             <div class="brand-title sidebar-copy">Notesheet Management</div>
-            <div class="brand-copy sidebar-copy">Transparent file movement, visible conversation trails, and a flow that matches office note handling.</div>
+            <div class="brand-copy sidebar-copy"></div>
 
             <a href="{% url 'create_notesheet' %}" class="primary-nav-action">
                 <i class="fa-solid fa-plus"></i>
@@ -416,6 +416,14 @@
             </a>
 {% endif %}
 
+
+{% if request.session.role|lower == "chairman" or request.session.role|lower == "admin" %}
+                        <a href="{% url 'user_list' %}" class="nav-link-tile">
+                <i class="fa-solid fa-folder-open"></i>
+                <span class="sidebar-label">Create User</span>
+            </a>
+{% endif %}
+
             {% comment %} <a href="{% url 'notesheet_search' %}" class="nav-link-tile">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <span class="sidebar-label" type="text"
@@ -426,8 +434,8 @@
         <main class="main-panel">
             <div class="topbar">
                 <div>
-                    <h1 class="topbar-title">{% block page_title %}NSMS{% endblock %}</h1>
-                    <p class="topbar-copy">{% block page_subtitle %}Developer-friendly notesheet workflow with shared visibility.{% endblock %}</p>
+                    <h1 class="topbar-title">{% block page_title %}RadhaRaman NSMS{% endblock %}</h1>
+                    <p class="topbar-copy">{% block page_subtitle %}{% endblock %}</p>
                 </div>
                 <div class="d-flex align-items-center gap-3 flex-wrap">
                     <form method="GET" action="#" class="topbar-search">
@@ -446,14 +454,6 @@
                     <a href="{% url 'logout' %}" class="btn btn-soft">Logout</a>
                 </div>
             </div>
-
-            {% if messages %}
-                <div class="message-stack">
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags|default:'info' }} mb-0">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
 
             {% block content %}{% endblock %}
         </main>
