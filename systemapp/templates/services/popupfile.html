@@ -1,0 +1,16 @@
+
+{% if messages %}
+    {% for message in messages %}
+
+        <script>
+            Swal.fire({
+                icon: "{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}",
+                title: "{% if message.tags == 'error' %}Validation Error{% elif message.tags == 'success' %}Success{% elif message.tags == 'warning' %}Warning{% else %}Information{% endif %}",
+                text: "{{ message|escapejs }}",
+                confirmButtonText: "OK"
+            });
+        </script>
+
+    {% endfor %}
+{% endif %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

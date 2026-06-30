@@ -545,15 +545,31 @@
                     </small>
                 </div>
             {% else %}
-                <form method="POST" action="{% url 'send_quotation_to_chairman' note.id %}" id="sendToChairmanForm" style="margin-top: 12px;">
+
+                {% comment %} <form method="POST" action="{% url 'send_quotation_to_chairman' note.id %}" id="sendToChairmanForm" style="margin-top: 12px;">
                     {% csrf_token %}
                     <button type="submit" class="minimal-btn minimal-btn-dark" style="width: 100%;" id="sendToChairmanBtn">
                         🚀 Send To Chairman
                     </button>
-                </form>
-                <small style="display: block; margin-top: 5px; color: #6c757d; font-size: 12px; text-align: center;">
+                </form> {% endcomment %}
+                {% comment %} <small style="display: block; margin-top: 5px; color: #6c757d; font-size: 12px; text-align: center;">
                     Note: Sending to Chairman will lock all vendor details
-                </small>
+                </small> {% endcomment %}
+
+                
+        <form method="POST"
+              action="{% url 'generate_po' note.id %}" style="margin-top: 12px; ">
+
+            {% csrf_token %}
+
+            <button <button type="submit" class="minimal-btn minimal-btn-dark" style="width: 20%;">
+
+                Generate PO PDF
+
+            </button>
+
+        </form>
+
             {% endif %}
         {% endif %}
     </div>

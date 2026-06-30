@@ -1,0 +1,14 @@
+asgiref==3.8.1
+charset-normalizer==3.4.2
+Django==4.2.23
+et_xmlfile==2.0.0
+numpy==1.26.4
+openpyxl==3.1.5
+pandas==2.2.3
+Pillow==11.3.0
+psycopg2==2.9.10
+python-dateutil==2.9.0.post0
+reportlab==4.2.5
+six==1.17.0
+sqlparse==0.5.3
+tzdata==2025.2

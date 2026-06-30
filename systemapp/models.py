@@ -108,7 +108,9 @@ class NoteSheet(models.Model):
     finance_attachment = models.FileField(upload_to='notesheets/finance_attachments/',null=True,blank=True)
     general_status = models.CharField(max_length=50, choices=GENERAL_STATUS_CHOICE, default='PENDING')
     approved_by = models.ForeignKey('userapp.User',null=True,blank=True,on_delete=models.SET_NULL)
+    is_deleted = models.BooleanField(default=False)
 
+    
     class Meta:
         ordering = ['-created_at']
 

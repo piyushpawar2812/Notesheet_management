@@ -355,6 +355,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="app-shell">
         <aside class="sidebar">
@@ -458,5 +459,22 @@
             {% block content %}{% endblock %}
         </main>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+{% if messages %}
+    {% for message in messages %}
+        <script>
+            Swal.fire({
+                icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}",
+                title: "{% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% elif message.tags == 'warning' %}Warning{% else %}Information{% endif %}",
+                text: "{{ message|escapejs }}",
+                confirmButtonColor: "#3085d6",
+                confirmButtonText: "OK"
+            });
+        </script>
+    {% endfor %}
+{% endif %}
 </body>
 </html>
+
+

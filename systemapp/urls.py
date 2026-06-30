@@ -39,6 +39,13 @@ urlpatterns = [
         name='open_sent_file'
     ),
 
+
+    path(
+    "notesheet/<int:pk>/delete/",
+    views.delete_notesheet,
+    name="delete_notesheet",
+),
+
     path(
         'movement-history/<int:pk>/',
         views.movement_history,
@@ -53,11 +60,26 @@ urlpatterns = [
         name='chairman_purchase_approve'
     ),
 
-    path(
-        'chairman-quotation-approve/<int:pk>/',
-        views.chairman_quotation_approve,
-        name='chairman_quotation_approve'
-    ),
+    # path(
+    #     'chairman-quotation-approve/<int:pk>/',
+    #     views.chairman_quotation_approve,
+    #     name='chairman_quotation_approve'
+    # ),
+
+#     path(
+#     'quotation-revert/<int:pk>/',
+#     views.chairman_quotation_revert,
+#     name='chairman_quotation_revert'
+# ),
+
+
+# path(
+#     'send-quotation-chairman/<int:pk>/',
+#     views.send_quotation_to_chairman,
+#     name='send_quotation_to_chairman'
+# ),
+
+
 
     path(
     'add-quotation/<int:pk>/',
@@ -77,16 +99,8 @@ path(
     name='quotation_details'
 ),
 
-path(
-    'send-quotation-chairman/<int:pk>/',
-    views.send_quotation_to_chairman,
-    name='send_quotation_to_chairman'
-),
-path(
-    'quotation-revert/<int:pk>/',
-    views.chairman_quotation_revert,
-    name='chairman_quotation_revert'
-),
+
+
 
 path(
     'generate-po/<int:pk>/',

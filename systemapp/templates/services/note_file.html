@@ -9,7 +9,7 @@ Title-{{ note.title }}{% endblock %}
 
     {% include 'services/purchase_flow.html' %}
 
-  
+   
 
 {% if request.session.role|lower == "purchase" %}
 
@@ -74,6 +74,7 @@ Title-{{ note.title }}{% endblock %}
 {% endif %}
 
 <br>
+
 <div class="d-flex gap-3 align-items-center flex-wrap">
 
     {% if note.po_pdf %}
@@ -775,103 +776,119 @@ Title-{{ note.title }}{% endblock %}
     </div>
 <!-- SINGLE MAIN DIV -->
 <div class="remark-render-area">
+{% for item in remarks %}
 
-    {% for item in remarks %}
+<div class="remark-line">
+{% comment %} 
+    <!-- ACTION -->
 
-        <div class="remark-line">
+    <div class="mb-2">
 
-            <!-- TEXT -->
+        {% if item.action == "APPROVED" %}
+            <span class="badge bg-success">Approved</span>
 
-            <div class="remark-text-area">
-            {% if item.remark_text %}
-                  #Note {{ forloop.counter }}-{{ item.remark_text|safe }}
-                {% else %}
+        {% elif item.action == "REJECTED" %}
+            <span class="badge bg-danger">Rejected</span>
 
-                    <span class="text-secondary">
-                        No text added.
-                    </span>
-                    
+        {% elif item.action == "FORWARDED" %}
+            <span class="badge bg-warning text-dark">Forwarded</span>
 
-                {% endif %}
+        {% else %}
+            <span class="badge bg-primary">Comment</span>
 
-            
+        {% endif %}
 
-            </div>
-           
+    </div> {% endcomment %}
 
-            <!-- ATTACHMENT -->
+    <!-- REMARK -->
 
-            {% if item.attachment %}
+    <div class="remark-text-area">
 
-                <div class="mt-2">
+        {% if item.remark_text %}
 
-                    <a href="{{ item.attachment.url }}"
-                       target="_blank"
-                       class="remark-attachment-link">
+            #Note {{ forloop.counter }} - {{ item.remark_text|safe }}
 
-                        <i class="fa-solid fa-paperclip"></i>
+        {% else %}
 
-                        {{ item.attachment.name|cut:"notesheets/remarks/" }}
+            <span class="text-secondary">
+                No text added.
+            </span>
 
-                    </a>
+        {% endif %}
+
+    </div>
+
+    <!-- ATTACHMENT -->
+
+    {% if item.attachment %}
+
+        <div class="mt-2">
+
+            <a href="{{ item.attachment.url }}"
+               target="_blank"
+               class="remark-attachment-link">
+
+                <i class="fa-solid fa-paperclip"></i>
+
+                {{ item.attachment.name|cut:"notesheets/remarks/" }}
+
+            </a>
+
+        </div>
+
+    {% endif %}
+
+    <!-- FOOTER -->
+
+    <div class="remark-footer">
+
+        <div>
+
+            <strong>
+                By - {{ item.created_by.officer_name }}
+            </strong>
+
+            {% if item.created_by.designation %}
+                - {{ item.created_by.designation }}
+            {% endif %}
+
+            {% if item.forwarded_to %}
+
+                <div class="mt-1 text-muted">
+
+                    <strong>Forwarded To:</strong>
+
+                    {{ item.forwarded_to.officer_name }}
+
+                    {% if item.forwarded_to.designation %}
+                        - {{ item.forwarded_to.designation }}
+                    {% endif %}
 
                 </div>
 
             {% endif %}
 
-            <!-- FOOTER -->
+        </div>
 
-            <div class="remark-footer">
+        <div>
 
-    <div>
-
-        <strong>
-           By- {{ item.created_by.officer_name }}
-        </strong>
-
-        {% if item.created_by.designation %}
-
-            - {{ item.created_by.designation }}
-
-        {% endif %}
-
-        {% if item.forwarded_to %}
-
-            <div class="mt-1 text-muted">
-
-                <strong>Forwarded To:</strong>
-
-                {{ item.forwarded_to.officer_name }}
-
-                {% if item.forwarded_to.designation %}
-
-                    - {{ item.forwarded_to.designation }}
-
-                {% endif %}
-
-            </div>
-
-        {% endif %}
-
-    </div>
-
-    <div>
-
-        {{ item.created_at|date:"d/m/Y h:i A" }}
-
-    </div>
-
-</div>
-</div>
-    {% empty %}
-
-        <div class="text-secondary">
-
-            No remarks available yet.
+            {{ item.created_at|date:"d/m/Y h:i A" }}
 
         </div>
 
-    {% endfor %}
+    </div>
+
+</div>
+
+{% empty %}
+
+<div class="text-secondary">
+
+    No remarks available yet.
+
+</div>
+
+{% endfor %}
 
     {% if procurement_actions %}
 
@@ -1058,7 +1075,7 @@ Title-{{ note.title }}{% endblock %}
     </div>
 
         <div class="hero-strip">
-            <div class="small text-white-50">For Collage</div>
+            <div class="small text-white-50">Collage</div>
             <div class="fw-bold mt-1">{{ note.collage.collage_name|default:"Not assigned" }}</div>
         </div>
            <div class="meta-card">
@@ -1070,7 +1087,7 @@ Title-{{ note.title }}{% endblock %}
             <div class="fw-bold mt-1">{{ note.created_by.officer_name }}</div>
         </div>
         <div class="meta-card">
-            <div class="small text-white-50">Current Holder</div>
+            <div class="small text-white-50">Current Status</div>
             <div class="fw-bold mt-1">{{ current_holder.officer_name }}</div>
         </div>
     
@@ -1131,8 +1148,10 @@ Title-{{ note.title }}{% endblock %}
 {% comment %} {% if request.session.role|lower == "purchase" and note.vendors.all %}
     {% include 'services/vendor_details.html' %}
 {% endif %} {% endcomment %}
-{% include 'services/vendor_details.html' %}
 
+{% if request.session.role|lower == "chairman" or request.session.role|lower == "admin" or request.session.role|lower == "purchase" %}
+{% include 'services/vendor_details.html' %}
+{% endif %}
 
 </div>
 

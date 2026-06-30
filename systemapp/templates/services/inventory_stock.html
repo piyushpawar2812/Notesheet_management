@@ -26,14 +26,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                {% comment %} <div class="col-md-6">
                     <div class="card bg-info text-white">
                         <div class="card-body">
                             <h6 class="card-title">Total Value</h6>
                             <h3>₹ {{ total_value|floatformat:2 }}</h3>
                         </div>
                     </div>
-                </div>
+                </div> {% endcomment %}
             </div>
 
             <!-- TABLE -->
@@ -41,7 +41,7 @@
                 <table class="table table-bordered table-hover align-middle" id="inventoryTable">
                     <thead class="table-dark">
                         <tr>
-                            <th>#</th>
+                            <th>Sr. No.</th>
                             <th>Notesheet</th>
                             <th>Supplier</th>
                             <th>Item Name</th>
@@ -57,7 +57,7 @@
                         <tr>
                             <td>{{ forloop.counter }}</td>
                             <td>
-                                <span class="badge bg-secondary">
+                                <span class="badge bg-dark">
                                     {{ item.notesheet.notesheet_no|default:"N/A" }}
                                 </span>
                             </td>

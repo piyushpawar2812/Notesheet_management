@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block page_title %}Notesheet Access{% endblock %}
+{% block page_title %}All Your Notesheet Files{% endblock %}
 {% block page_subtitle %}Every notesheet you created, received, or handled is listed here with its current holder and edit state.{% endblock %}
 
 {% block content %}
@@ -24,7 +24,7 @@
                     <th>Created By</th>
                     <th>Current Holder</th>
                     <th>Status</th>
-                    <th>Open</th>
+                    <th>Open/Delete</th>
                 </tr>
             </thead>
             <tbody>
@@ -48,10 +48,19 @@
                             {% endif %}
                         </td>
                         <td>
-                            <a href="{% if row.can_edit %}{% url 'edit_notesheet' row.instance.id %}{% else %}{% url 'open_sent_file' row.instance.id %}{% endif %}" class="btn btn-brand">
-                                Open
-                            </a>
-                        </td>
+    <a href="{% if row.can_edit %}{% url 'edit_notesheet' row.instance.id %}{% else %}{% url 'open_sent_file' row.instance.id %}{% endif %}"
+       class="btn btn-brand">
+        Open
+         </a>
+{% if row.can_edit and row.instance.created_by.id == current_user.id %}
+    <a href="{% url 'delete_notesheet' row.instance.id %}"
+       class="btn btn-danger"
+       onclick="return confirm('Are you sure you want to delete this notesheet?');">
+        Delete
+    </a>
+{% endif %}
+</td>
+
                     </tr>
                 {% empty %}
                     <tr>

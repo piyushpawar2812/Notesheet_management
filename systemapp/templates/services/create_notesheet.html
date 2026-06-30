@@ -32,10 +32,10 @@
                         {% endfor %}
                     </select>
                 </div>
-               <div class="col-md-12">
+               {% comment %} <div class="col-md-12">
                     <label class="form-label fw-semibold">Opening note</label>
                     <textarea name="description" class="form-control" rows="6" placeholder="Add the initial note, context, and any background needed for the file journey."{% if form_disabled %}disabled{% endif %}></textarea>
-                </div> 
+                </div>  {% endcomment %}
 
                 <div class="col-12 d-flex justify-content-end">
 {% if not form_disabled %}
