@@ -1,0 +1,175 @@
+[33mcommit 32b04f1be39c0a0977a1110419b3bdc0b3adb860[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: piyushpawar2812 <piyushpawr28@gmail.com>
+Date:   Tue Jun 30 10:32:57 2026 +0530
+
+    Added latest changes
+
+[33mcommit 271ab1ba445b2a79dc0f7769e9c5e3a7a9b54282[m[33m ([m[1;31morigin/feature_branch[m[33m)[m
+Author: piyushpawar2812 <piyushpawr28@gmail.com>
+Date:   Tue Jun 23 22:41:37 2026 +0530
+
+    Replace repository with latest local code
+
+[33mcommit 2e4a03e44398cab16757f7131eeb89f16ed4f67a[m
+Author: Piyush Pawar <piyushpawr28@gmail.com>
+Date:   Sat Jun 20 17:08:21 2026 +0530
+
+    Add Collage model to admin with display and search optionsokay
+    
+    Collage
+
+[33mcommit bd843b565abe6dbf974166b1b24865e805b72629[m
+Author: Piyush Pawar <piyushpawr28@gmail.com>
+Date:   Sat Jun 20 17:06:31 2026 +0530
+
+    Add timezone import to models.py
+
+[33mcommit 438671bb4f6af05dcd93b60ce910f557d5988554[m
+Author: Piyush Pawar <piyushpawr28@gmail.com>
+Date:   Sat Jun 20 17:00:52 2026 +0530
+
+    Enhance Collage model and notesheet number generation
+    
+    Add collage_code field to Collage model and update save method to generate notesheet_no based on collage code and year.
+
+[33mcommit f9d8c653fd12ef8b86259ca61d08f01f7d7ac5cd[m
+Author: Piyush Pawar <piyushpawr28@gmail.com>
+Date:   Sat Jun 20 16:54:14 2026 +0530
+
+    USER COLLAGE FOREIGN KEY
+    
+    USER cOLLAGEFOREGIN KEY
+
+[33mcommit a87fd733a3810c20ca3b248219af04d6b0643abe[m
+Author: Piyush Pawar <piyushpawr28@gmail.com>
+Date:   Sat Jun 20 10:15:29 2026 +0530
+
+    Remove department-wise filter from dashboard
+    
+    Removed the department-wise filter section from the dashboard.
+
+[33mcommit 96d04ca19d6bf302f891a1543b4e718462b4bc9e[m
+Author: Piyush Pawar <piyushpawr28@gmail.com>
+Date:   Sun Jun 14 19:12:25 2026 +0530
+
+    Add conditional link for note editing in inbox
+    
+    52 inbox.html
+
+[33mcommit e08bb3b9914d08184739f4372857de588e7a8bef[m
+Author: Piyush Pawar <piyushpawr28@gmail.com>
+Date:   Sun Jun 14 12:54:03 2026 +0530
+
+    corrected inbox
+    
+    Inbox has been corrected for the ciarman and admin to hace can edit and open_sent_file
+
+[33mcommit 7bfe52a86b9915b752e8d67b300a5a67f2049844[m
+Author: Piyush Pawar <piyushpawr28@gmail.com>
+Date:   Sat Jun 13 15:39:16 2026 +0530
+
+    ok
+    
+    html from note tag
+
+[33mcommit 827e2bec4d3914376cead6d1f1f411fc20c81919[m
+Author: Piyush Pawar <piyushpawr28@gmail.com>
+Date:   Fri Jun 12 17:03:45 2026 +0530
+
+    Implement role-based access for note status
+    
+    980
+    Note_file.html;
+
+[33mcommit bee1228c64ef43b079e1175c9207c2bc5ec45f3a[m
+Author: Piyush Pawar <piyushpawr28@gmail.com>
+Date:   Fri Jun 12 16:52:40 2026 +0530
+
+    Update redirect logic after user login
+    
+    Redirect users to different dashboards based on their role.
+
+[33mcommit 2087613f5107fa05360e70556c2df435bfeb2e53[m
+Author: Piyush Pawar <piyushpawr28@gmail.com>
+Date:   Fri Jun 12 16:06:57 2026 +0530
+
+    Enhance uploaded file display with conditional logic
+    
+    Updated the display of the uploaded file section to conditionally show the file link or a message if no file is uploaded.
+    
+    239
+
+[33mcommit 2e43d4845d988893ee83555f391f4d2ba7301e2a[m
+Author: Piyush Pawar <piyushpawr28@gmail.com>
+Date:   Fri Jun 12 16:05:45 2026 +0530
+
+    Refactor uploaded file display logic
+    
+    Updated the file upload section to conditionally display a message if no file is uploaded.
+    1122
+
+[33mcommit 435a228aec9ea1b08597d2afc0d3446fb2af117b[m
+Author: Piyush Pawar <piyushpawr28@gmail.com>
+Date:   Thu Jun 11 19:37:22 2026 +0530
+
+    Update login.html by removing unnecessary text
+    
+    Removed redundant information about transparent notesheet handling and read-only protection.
+
+[33mcommit df21c44110ec685cbd73b6baed2aaea9bbb5a2db[m
+Author: Piyush Pawar <piyushpawr28@gmail.com>
+Date:   Thu Jun 11 19:36:22 2026 +0530
+
+    Update note_file.html
+    
+    ok
+
+[33mcommit 098f9d208028eb75e624ec2d9a4fe24250914fe4[m
+Author: Piyush Pawar <piyushpawr28@gmail.com>
+Date:   Thu Jun 11 14:14:20 2026 +0530
+
+    Simplify login page title and button text
+
+[33mcommit c7d4ac060de042caca7c26f1f529f9547964a7ba[m
+Author: Piyush Pawar <piyushpawr28@gmail.com>
+Date:   Fri Jun 5 12:51:05 2026 +0530
+
+    Add conditional rendering for note purpose
+    
+    982--Only Button not for Purchase
+
+[33mcommit 8b058807a5c1cd6da807bf4afa3c675b043ff9c5[m
+Author: piyushpawar2812 <piyushpawr28@gmail.com>
+Date:   Wed Jun 3 17:33:32 2026 +0530
+
+    total setupa as per client
+
+[33mcommit 0865f99a40a5e7b524cdf851222cfc4e182f054c[m
+Author: piyushpawar2812 <piyushpawr28@gmail.com>
+Date:   Tue May 19 16:27:10 2026 +0530
+
+    finance closed
+
+[33mcommit 948b3b36c0bc1d1a6ae97085e3d1ad6b2f0a2381[m
+Author: piyushpawar2812 <piyushpawr28@gmail.com>
+Date:   Tue May 19 11:44:27 2026 +0530
+
+    finance_upload
+
+[33mcommit 0db483db42814e253c2d8da9266ae1ab0c0f82bb[m
+Author: piyushpawar2812 <piyushpawr28@gmail.com>
+Date:   Mon May 18 12:47:01 2026 +0530
+
+    again commit
+
+[33mcommit 87d5cb86be13b6801d2ac8d1b3971855f3160718[m
+Author: piyushpawar2812 <piyushpawr28@gmail.com>
+Date:   Wed May 13 16:47:17 2026 +0530
+
+    Added notesheet wthout inventoryI
+
+[33mcommit 497273700575acbff1129e1e13fabe10c21a22e8[m
+Author: piyushpawar2812 <piyushpawr28@gmail.com>
+Date:   Mon May 11 21:06:01 2026 +0530
+
+    Commite for Notesheett,managemnet
