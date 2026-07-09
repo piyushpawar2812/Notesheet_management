@@ -3,6 +3,7 @@ import io
 from datetime import date
 
 from decimal import Decimal
+from urllib import request
 
 from django.core.files.base import ContentFile
 
@@ -74,30 +75,12 @@ def is_chairman_or_admin(user):
     role_key = get_role_key(user)
     return "chairman" in role_key or "admin" in role_key
 
-
 def get_accessible_notes_queryset(user):
     role = user.role.role_name.lower()
 
-    if role in ['chairman', 'admin']:
-        return (
-            NoteSheet.objects
-            .select_related(
-                'department',
-                'created_by',
-                'forwarded_to',
-                'purpose'
-            )
-            .prefetch_related('remarks')
-            .order_by('-created_at')
-        )
-
-    return (
-        NoteSheet.objects.filter(
-            Q(created_by=user) |
-            Q(forwarded_to=user) |
-            Q(remarks__created_by=user) |
-            Q(remarks__forwarded_to=user)
-        )
+    base_qs = (
+        NoteSheet.objects
+        .filter(is_deleted=False)
         .select_related(
             'department',
             'created_by',
@@ -105,6 +88,18 @@ def get_accessible_notes_queryset(user):
             'purpose'
         )
         .prefetch_related('remarks')
+    )
+
+    if role in ['chairman', 'admin']:
+        return base_qs.order_by('-created_at')
+
+    return (
+        base_qs.filter(
+            Q(created_by=user) |
+            Q(forwarded_to=user) |
+            Q(remarks__created_by=user) |
+            Q(remarks__forwarded_to=user)
+        )
         .distinct()
         .order_by('-created_at')
     )
@@ -298,43 +293,31 @@ def your_notesheets(request):
     return render(request, 'services/your_notesheets.html', {'notes': notes, 'current_user': user,})
 
 def delete_notesheet(request, pk):
-
-    user = get_user(request)
-
+    user = get_session_user(request)
     if not user:
         return redirect("login")
 
-    note = get_object_or_404(
-        NoteSheet,
-        pk=pk
-    )
+    note = get_object_or_404(NoteSheet, pk=pk, is_deleted=False)
 
-    # =====================================
-    # ONLY CREATOR CAN DELETE
-    # =====================================
-
-    if note.created_by != user:
-        messages.error(
-            request,
-            "You are not authorized to delete this notesheet."
-        )
+    # only creator can delete
+    if note.created_by_id != user.id:
+        messages.error(request, "You are not authorized to delete this notesheet.")
         return redirect("your_notesheets")
 
-    # =====================================
-    # ALREADY FORWARDED?
-    # =====================================
-
-    if note.forwarded_to != user:
-        messages.error(
-            request,
-            "This notesheet has already been forwarded and cannot be deleted."
-        )
+    # if already forwarded, don't allow delete
+    if note.forwarded_to_id is not None:
+        messages.error(request, "This notesheet has already been forwarded and cannot be deleted.")
         return redirect("your_notesheets")
 
-    # =====================================
-    # DELETE
-    # =====================================
+    note.is_deleted = True
+    note.save(update_fields=["is_deleted"])
 
+    messages.success(request, "Notesheet deleted successfully.")
+    return redirect("your_notesheets")
+
+    # =====================================
+    # SOFT DELETE
+    # =====================================
     note.is_deleted = True
     note.save(update_fields=["is_deleted"])
 
@@ -342,7 +325,6 @@ def delete_notesheet(request, pk):
         request,
         "Notesheet deleted successfully."
     )
-
     return redirect("your_notesheets")
 
 # =========================================================
@@ -426,7 +408,11 @@ def inbox(request):
             'current_user': user
         }
     )
+
 def handle_post(request, note, user):
+    print("========== HANDLE_POST ==========")
+    print(request.method)
+    print(request.POST)
 
     # =====================================
     # WORKFLOW CLOSED CHECK
@@ -446,69 +432,117 @@ def handle_post(request, note, user):
 
     action_type = request.POST.get("action_type")
 
-    # =====================================
-    # SAVE
-    # =====================================
+# =====================================
+# SAVE
+# =====================================
 
     if action_type == "save":
 
-        save_note_content(
+        saved=save_note_content(
             request,
             note,
             user
         )
+        print("SAVE RESULT =", saved)
+
+        if not saved:
+            print("SAVE FAILED")
+            return redirect("edit_notesheet", pk=note.id)
+
+        print("CALLING FORWARD")
 
         return redirect(
             "edit_notesheet",
             pk=note.id
         )
-
-    # =====================================
-    # SEND
-    # =====================================
-
+    
     elif action_type == "send":
 
-        text = request.POST.get("content", "").strip()
-        attachment = request.FILES.get("remark_attachment")
-        general_status = request.POST.get("general_status")
-
-        # Purchase workflow
-        if (
-            note.purpose
-            and note.purpose.purpose_name.lower() == "purchase"
-        ):
-
-            if not text and not attachment:
-                messages.error(
-                    request,
-                    "Please write a remark or attach a document before forwarding."
-                )
-                return redirect("edit_notesheet", pk=note.id)
-
-        # Normal workflow
-        else:
-
-            if not text and not attachment and not general_status:
-                messages.error(
-                    request,
-                    "Please write a remark, attach a document or select status before forwarding."
-                )
-                return redirect("edit_notesheet", pk=note.id)
-
-        # First save current remark
-        save_note_content(
+        saved = save_note_content(
             request,
             note,
             user
         )
 
-        # Then forward
+        if not saved:
+            return redirect("edit_notesheet", pk=note.id)
+
         return forward_note(
             request,
             note,
             user
         )
+    
+
+
+    # # =====================================
+    # # SEND
+    # # =====================================
+
+    # elif action_type == "send":
+
+    #     # TinyMCE data
+    #     text = request.POST.get("content", "").strip()
+    #     attachment = request.FILES.get("remark_attachment")
+    #     general_status = request.POST.get("general_status")
+
+    #     print("======== DEBUG ========")
+    #     print("Text:", repr(text))
+    #     print("Attachment:", attachment)
+    #     print("General Status:", repr(general_status))
+    #     print("=======================")
+
+    #     # ---------------------------------
+    #     # Purchase Validation
+    #     # ---------------------------------
+    #     if (
+    #         note.purpose
+    #         and note.purpose.purpose_name
+    #         and note.purpose.purpose_name.lower() == "purchase"
+    #     ):
+
+    #         if not text and not attachment:
+    #             messages.error(
+    #                 request,
+    #                 "Please write a remark or attach a document before forwarding."
+    #             )
+    #             return redirect("edit_notesheet", pk=note.id)
+
+    #     # ---------------------------------
+    #     # Normal Validation
+    #     # ---------------------------------
+    #     else:
+
+    #         if not text and not attachment and not general_status:
+    #             messages.error(
+    #                 request,
+    #                 "Please write a remark, attach a document or select a status before forwarding."
+    #             )
+    #             return redirect("edit_notesheet", pk=note.id)
+
+    #     # ---------------------------------
+    #     # Save Current Remark
+    #     # ---------------------------------
+    #     saved = save_note_content(
+    #         request,
+    #         note,
+    #         user
+    #     )
+
+    #     if not saved:
+    #         return redirect(
+    #             "edit_notesheet",
+    #             pk=note.id
+    #         )
+
+    #     # ---------------------------------
+    #     # Forward File
+    #     # ---------------------------------
+    #     return forward_note(
+    #         request,
+    #         note,
+    #         user
+    #     )
 
     # =====================================
     # CHAIRMAN / ADMIN COMMON ACCESS
@@ -659,17 +693,26 @@ def handle_post(request, note, user):
 # SAVE NOTE CONTENT
 # =========================================================
 def save_note_content(request, note, user):
+    print("===== save_note_content CALLED =====")
 
     text = request.POST.get('content', '').strip()
     attachment = request.FILES.get('remark_attachment')
     general_status = request.POST.get('general_status')
 
-    if not text and not attachment and not general_status:
-        messages.warning(
+    # Check if this is the first remark
+    first_remark = not NoteRemark.objects.filter(notesheet=note).exists()
+
+    # Validation only for first row
+    if first_remark and not text and not attachment and not general_status:
+        messages.error(
             request,
-            "Write note, upload attachment or select status."
+            "The first remark must contain either text, an attachment, or a status."
         )
         return False
+
+    # =====================================
+    # Default action
+    # =====================================
 
     action = "COMMENT"
 
@@ -707,7 +750,7 @@ def save_note_content(request, note, user):
     # =====================================
     # SAVE REMARK
     # =====================================
-
+    print("Creating NoteRemark...")
     NoteRemark.objects.create(
         notesheet=note,
         created_by=user,
@@ -715,6 +758,8 @@ def save_note_content(request, note, user):
         remark_text=text,
         attachment=attachment,
         visible_to=user,
+        general_status=general_status if general_status else None,
+        approved_by = user if general_status in ("APPROVED", "REJECTED") else None
     )
 
     messages.success(
@@ -727,6 +772,7 @@ def save_note_content(request, note, user):
 # FORWARD FILE
 # =========================================================
 def forward_note(request, note, user):
+    print("1st step-----------------------")
 
     forwarded_to_id = request.POST.get("forwarded_to")
 
@@ -781,6 +827,8 @@ def forward_note(request, note, user):
         )
         .order_by("created_at")
     )
+    print("Forwarded User:", forwarded_user)
+    print("2ndddd Current Remarks Count:", current_remarks.count())
 
     # =====================================
     # UPDATE LAST REMARK'S FORWARDED TO
@@ -804,8 +852,9 @@ def forward_note(request, note, user):
     # =====================================
     # COPY COMPLETE HISTORY
     # =====================================
-
+    print("3st step-----------------------")
     for old in current_remarks:
+        print("4th step-----------------------")
 
         new_remark = NoteRemark.objects.create(
             notesheet=note,
@@ -815,10 +864,15 @@ def forward_note(request, note, user):
             attachment=old.attachment,
             forwarded_to=old.forwarded_to,
             visible_to=forwarded_user,
+            general_status=old.general_status,
+            approved_by=old.approved_by,
         )
+        print("5th step-----------------------")
 
         new_remark.created_at = old.created_at
         new_remark.save(update_fields=["created_at"])
+
+        print("Remarks Count:9999999999999", current_remarks.count())
 
     # =====================================
     # MOVE FILE
@@ -837,7 +891,8 @@ def forward_note(request, note, user):
         request,
         f"Notesheet forwarded to {forwarded_user.officer_name}."
     )
-
+    
+    
     return redirect(
         "edit_notesheet",
         pk=note.id
@@ -2236,9 +2291,15 @@ def dashboard_view(request):
     # =========================================
     # ALL NOTESHEETS
     # =========================================
-    all_notesheets = NoteSheet.objects.select_related(
+    all_notesheets = (
+    NoteSheet.objects
+    .filter(is_deleted=False)
+    .select_related(
         'department', 'created_by', 'forwarded_to', 'purpose', 'approved_by'
-    ).prefetch_related('remarks').order_by('-created_at')
+    )
+    .prefetch_related('remarks')
+    .order_by('-created_at')
+)
     
     # =========================================
     # CREATE NOTEOPEN LIST WITH PERMISSIONS
