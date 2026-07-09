@@ -74,7 +74,7 @@ Title-{{ note.title }}{% endblock %}
 {% endif %}
 
 <br>
-
+{% if request.session.role|lower == "chairman"  or request.session.role|lower == "admin" or request.session.role|lower == "purchase" %}
 <div class="d-flex gap-3 align-items-center flex-wrap">
 
     {% if note.po_pdf %}
@@ -88,8 +88,8 @@ Title-{{ note.title }}{% endblock %}
         </a>
 
     {% endif %}
-
-
+{% endif %}
+{% if request.session.role|lower == "chairman"  or request.session.role|lower == "admin"  %}
     {% if note.finance_attachment %}
 
         <a href="{{ note.finance_attachment.url }}"
@@ -101,7 +101,7 @@ Title-{{ note.title }}{% endblock %}
         </a>
 
     {% endif %}
-
+  {% endif %}
 </div>
 <br>
 
@@ -810,9 +810,9 @@ Title-{{ note.title }}{% endblock %}
 
         {% else %}
 
-            <span class="text-secondary">
+            {% comment %} <span class="text-secondary">
                 No text added.
-            </span>
+            </span> {% endcomment %}
 
         {% endif %}
 
@@ -868,6 +868,36 @@ Title-{{ note.title }}{% endblock %}
 
             {% endif %}
 
+            {% if item.general_status != "PENDING" %}
+<div class="mt-3 d-flex align-items-center gap-2 flex-wrap">
+
+    {% if item.general_status == "APPROVED" %}
+        <span class="badge bg-success px-3 py-2">
+            <i class="fa-solid fa-circle-check me-1"></i>
+            Approved
+        </span>
+
+    {% elif item.general_status == "REJECTED" %}
+        <span class="badge bg-danger px-3 py-2">
+            <i class="fa-solid fa-circle-xmark me-1"></i>
+            Rejected
+        </span>
+    {% endif %}
+
+    {% if item.approved_by %}
+        <span class="text-muted small">
+            <strong>By:</strong>
+            {{ item.approved_by.officer_name }}
+
+            {% if item.approved_by.role %}
+                ({{ item.approved_by.role.role_name }})
+            {% endif %}
+        </span>
+    {% endif %}
+
+</div>
+{% endif %}
+
         </div>
 
         <div>
@@ -877,7 +907,6 @@ Title-{{ note.title }}{% endblock %}
         </div>
 
     </div>
-
 </div>
 
 {% empty %}
@@ -890,11 +919,7 @@ Title-{{ note.title }}{% endblock %}
 
 {% endfor %}
 
-    {% if procurement_actions %}
-
-
-{% endif %}
-
+{% comment %} 
 {% if note.approved_by %}
 
 <div class="mt-2">
@@ -911,7 +936,7 @@ Title-{{ note.title }}{% endblock %}
 
 </div>
 
-{% endif %}
+{% endif %} {% endcomment %}
 </div>
  
 </div>
@@ -1011,7 +1036,13 @@ Title-{{ note.title }}{% endblock %}
             
 
         </form>
-
+<script>
+document.getElementById("remarkForm").addEventListener("submit", function () {
+    if (typeof tinymce !== "undefined") {
+        tinymce.triggerSave();
+    }
+});
+</script>
         
     <!-- TOP RIGHT : FORWARD -->
 
@@ -1082,14 +1113,28 @@ Title-{{ note.title }}{% endblock %}
             <div class="small text-white-50">Purpose</div>
             <div class="fw-bold mt-1">{{ note.purpose.purpose_name|default:"Not assigned" }}</div>
         </div>
+        <br>
         <div class="meta-card">
             <div class="small text-white-50">Created By</div>
             <div class="fw-bold mt-1">{{ note.created_by.officer_name }}</div>
         </div>
-        <div class="meta-card">
+        <!-- <div class="meta-card">
             <div class="small text-white-50">Current Status</div>
             <div class="fw-bold mt-1">{{ current_holder.officer_name }}</div>
+        </div> -->
+        <br>
+        <div class="meta-card">
+    <div class="small text-white-50">Current Status</div>
+    <div class="fw-bold mt-1">
+        {% if note.procurement_status == 'CLOSED' %}
+            {{ note.get_procurement_status_display }}
+        {% else %}
+            {{ current_holder.officer_name }}
+        {% endif %}
+    </div>
         </div>
+
+        
     
         {% comment %} <div class="meta-card">
             <div class="small text-white-50">PO Number</div>
@@ -1103,6 +1148,8 @@ Title-{{ note.title }}{% endblock %}
 {% if note.vendors.all %}
 
     <!-------------------------->
+
+{% if request.session.role|lower == "chairman" or request.session.role|lower == "admin" or request.session.role|lower == "purchase" %}
 {% if purchase_order %}
 
 <div class="card mt-4">
@@ -1144,7 +1191,7 @@ Title-{{ note.title }}{% endblock %}
 </div>
 
 {% endif %}
-  
+{% endif %}
 {% comment %} {% if request.session.role|lower == "purchase" and note.vendors.all %}
     {% include 'services/vendor_details.html' %}
 {% endif %} {% endcomment %}
@@ -1162,33 +1209,58 @@ Title-{{ note.title }}{% endblock %}
 
 <script src="https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
-    const canEdit = {{ can_edit|yesno:"true,false" }};
+const canEdit = {{ can_edit|yesno:"true,false" }};
 
-    if (canEdit) {
-        tinymce.init({
-            selector: '#remarkEditor',
-            menubar: 'file edit view insert format tools table',
-            branding: false,
-            promotion: false,
-            height: 360,
-            plugins: 'lists link table code wordcount autoresize preview searchreplace visualblocks',
-            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | table link | removeformat preview code',
-            paste_data_images: true,
-paste_as_text: false,
-table_default_attributes: {
-    border: '1'
-},
-table_default_styles: {
-    width: '100%',
-    borderCollapse: 'collapse'
-},
-            content_style: 'body { font-family: Calibri, Arial, sans-serif; font-size: 15px; line-height: 1.6; margin: 16px; }',
-            autoresize_bottom_margin: 16
-        });
-    } else {
-        document.getElementById('remarkEditor').classList.remove('editor-textarea');
-        document.getElementById('remarkEditor').value = 'The editor is disabled because this file is not currently with you.';
+if (canEdit) {
+    tinymce.init({
+        selector: '#remarkEditor',
+        menubar: 'file edit view insert format tools table',
+        branding: false,
+        promotion: false,
+        height: 360,
+        plugins: 'lists link table code wordcount autoresize preview searchreplace visualblocks',
+        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | table link | removeformat preview code',
+        paste_data_images: true,
+        paste_as_text: false,
+        table_default_attributes: {
+            border: '1'
+        },
+        table_default_styles: {
+            width: '100%',
+            borderCollapse: 'collapse'
+        },
+        content_style: 'body { font-family: Calibri, Arial, sans-serif; font-size: 15px; line-height: 1.6; margin: 16px; }',
+        autoresize_bottom_margin: 16
+    });
+document.getElementById("remarkForm").addEventListener("submit", function(e) {
+
+    tinymce.triggerSave();
+
+    // TinyMCE text
+    let content = tinymce.get("remarkEditor")
+        .getContent({ format: "text" })
+        .trim();
+
+    // Attachment
+    let attachment = document.querySelector('input[name="attachment"]').files.length;
+
+    // General Status
+    let generalStatus = document.querySelector('select[name="general_status"]').value.trim();
+
+    // Agar teeno empty hain to submit rok do
+    if (content === "" && attachment === 0 && generalStatus === "") {
+        e.preventDefault();
+        alert("Please enter a remark, select an attachment, or choose a general status.");
+        tinymce.get("remarkEditor").focus();
+        return false;
     }
+});
+
+} else {
+    document.getElementById('remarkEditor').classList.remove('editor-textarea');
+    document.getElementById('remarkEditor').value =
+        'The editor is disabled because this file is not currently with you.';
+}
 </script>
 <script>
 
