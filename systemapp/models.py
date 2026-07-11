@@ -173,6 +173,8 @@ class NoteRemark(models.Model):
     created_by = models.ForeignKey('userapp.User', on_delete=models.CASCADE, related_name='remarks_given')
     forwarded_to = models.ForeignKey('userapp.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='remarks_received')
     created_at = models.DateTimeField(auto_now_add=True)
+    general_status = models.CharField(max_length=50, choices=GENERAL_STATUS_CHOICE, default='PENDING')
+    approved_by = models.ForeignKey('userapp.User',null=True,blank=True,on_delete=models.SET_NULL)
 
     visible_to = models.ForeignKey('userapp.User',on_delete=models.SET_NULL,null=True,related_name='visible_remarks')
 
